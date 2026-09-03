@@ -1,0 +1,20 @@
+{
+  "size": "mini",
+  "pairs": 3000,
+  "match_pairs": 1500,
+  "hard_negative_pairs": 600,
+  "hard_negative_geo_pairs": 300,
+  "hard_negative_geo_same_category_pairs": 300,
+  "hard_negative_brand_pairs": 300,
+  "hard_negative_brand_same_locality_pairs": 300,
+  "easy_negative_pairs": 900,
+  "match_max_m": 5.0,
+  "hard_neg_max_m": 10.0,
+  "brand_hard_neg_fraction": 0.5,
+  "brand_hard_neg_min_m": 200.0,
+  "brand_hard_neg_max_m": 50000.0,
+  "easy_neg_min_m": 1000.0,
+  "rows_used": 6000,
+  "seed": 43,
+  "seconds": 3.7
+}
