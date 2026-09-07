@@ -1,0 +1,131 @@
+benchmark:
+  result_root: results/benchmark_runs
+  seed: 42
+  evaluator_batch_size: 16
+  checkpoint_flush_every: 1
+
+datasets:
+  overture-3k:
+    path: data/samples_3k_project_c_updated.parquet
+    label_column: label
+    positive_label: 1
+    example_id: generated_row_index
+    record_a_columns:
+      names: names
+      websites: websites
+      socials: socials
+      emails: emails
+      phones: phones
+      addresses: addresses
+    record_b_columns:
+      names: base_names
+      websites: base_websites
+      socials: base_socials
+      emails: base_emails
+      phones: base_phones
+      addresses: base_addresses
+    metadata_columns:
+      source_record_id: id
+      base_record_id: base_id
+
+prompts:
+  baseline:
+    version: "1"
+    exposed_fields: [names, websites, socials, emails, phones, addresses]
+    template: |-
+      You are performing place entity resolution.
+
+      Determine whether Place A and Place B refer to the same real-world place.
+
+      Consider differences in spelling, formatting, abbreviations, addresses, categories, and geographic information when available.
+
+      Respond with exactly one label:
+
+      MATCH
+      NO_MATCH
+
+      Place A:
+      {record_a}
+
+      Place B:
+      {record_b}
+
+      Answer:
+
+adapters:
+  llama_cpp:
+    backend: llama.cpp
+    backend_version: b10369
+    server_executable: .tools/llama-b10369/llama-server.exe
+    host: 127.0.0.1
+    port: 8192
+    gpu_layers: all
+    context_size: 4096
+    parallel_slots: 4
+    batch_size: 2048
+    micro_batch_size: 512
+    flash_attention: auto
+    reasoning: "off"
+    request_timeout_sec: 180
+    startup_timeout_sec: 300
+  qwen3_llama_cpp:
+    backend: llama.cpp
+    backend_version: b10369
+    server_executable: .tools/llama-b10369/llama-server.exe
+    host: 127.0.0.1
+    port: 8192
+    gpu_layers: all
+    context_size: 4096
+    parallel_slots: 4
+    batch_size: 2048
+    micro_batch_size: 512
+    flash_attention: auto
+    reasoning: "off"
+    request_timeout_sec: 180
+    startup_timeout_sec: 300
+
+models:
+  gemma-e2b:
+    adapter: llama_cpp
+    display_name: Gemma 4 E2B-it
+    model_id: google/gemma-4-E2B-it
+    quantized_repo: google/gemma-4-E2B-it-qat-q4_0-gguf
+    revision: 675cff42a74c774d6cb76f76d8eacb49b48c9b93
+    filename: gemma-4-E2B_q4_0-it.gguf
+    path: .models/gemma_E2B/gemma-4-E2B_q4_0-it.gguf
+    expected_size_bytes: 3349516256
+  gemma-e4b:
+    adapter: llama_cpp
+    display_name: Gemma 4 E4B-it
+    model_id: google/gemma-4-E4B-it
+    quantized_repo: google/gemma-4-E4B-it-qat-q4_0-gguf
+    revision: 4b4a2c1d584be7264f87aac328a1bc739ce81b6c
+    filename: gemma-4-E4B_q4_0-it.gguf
+    path: .models/gemma_E4B/gemma-4-E4B_q4_0-it.gguf
+    expected_size_bytes: 5154941280
+  gemma-12b:
+    adapter: llama_cpp
+    display_name: Gemma 4 12B-it
+    model_id: google/gemma-4-12B-it
+    quantized_repo: google/gemma-4-12B-it-qat-q4_0-gguf
+    revision: 29d097773436b69ff9feafd636ab4cf873786537
+    filename: gemma-4-12b-it-qat-q4_0.gguf
+    path: .models/gemma_12B/gemma-4-12b-it-qat-q4_0.gguf
+    expected_size_bytes: 6975879296
+  qwen3-4b:
+    adapter: qwen3_llama_cpp
+    display_name: Qwen3 4B
+    model_id: Qwen/Qwen3-4B
+    quantized_repo: Qwen/Qwen3-4B-GGUF
+    revision: bc640142c66e1fdd12af0bd68f40445458f3869b
+    filename: Qwen3-4B-Q4_K_M.gguf
+    path: .models/qwen3_4b/Qwen3-4B-Q4_K_M.gguf
+    expected_size_bytes: 2497280256
+    quantization: Q4_K_M GGUF
+
+generation:
+  temperature: 0.0
+  top_p: 1.0
+  max_tokens: 8
+  seed: 42
+  stop: ["\n"]
