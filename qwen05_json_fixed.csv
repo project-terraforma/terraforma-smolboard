@@ -1,0 +1,2 @@
+model,prompt_type,accuracy,precision,recall,f1,parsing_failure_rate,avg_latency_sec,samples_evaluated,valid_predictions
+Qwen/Qwen2.5-0.5B-Instruct,json_output,0.464,0.9852941176470589,0.20059880239520958,0.3333333333333333,0.0,1.24917680311203,500,500
