@@ -28,6 +28,29 @@ datasets:
       source_record_id: id
       base_record_id: base_id
 
+  medium_pairs_geo:
+    path: ../datasets/geo/medium_pairs.parquet
+    label_column: label
+    positive_label: 1
+    example_id: generated_row_index
+    record_a_columns:
+      names: left_names
+      websites: left_websites
+      socials: left_socials
+      emails: left_emails
+      phones: left_phones
+      addresses: left_addresses
+    record_b_columns:
+      names: right_names
+      websites: right_websites
+      socials: right_socials
+      emails: right_emails
+      phones: right_phones
+      addresses: right_addresses
+    metadata_columns:
+      source_record_id: left_id
+      base_record_id: right_id
+
 prompts:
   baseline:
     version: "1"
