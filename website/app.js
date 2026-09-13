@@ -33,6 +33,7 @@ async function loadData() {
   leaderboard = await response.json();
   renderTable();
   populateModelCheckboxes();
+  applyStateFromUrl();
   renderMetricCharts();
 }
 
@@ -46,7 +47,7 @@ function formatValue(key, value) {
 }
 
 function getFilteredRows() {
-  const activeTab = document.querySelector(".tab.is-active")?.dataset.filter;
+  const activeTab = getActiveFilter();
   let rows = [...leaderboard];
 
   if (activeTab && activeTab !== "all" && activeTab !== "graphs") {
@@ -92,7 +93,7 @@ function populateModelCheckboxes() {
   container.innerHTML = uniqueModels
     .map((name) => `
       <label>
-        <input type="checkbox" class="model-checkbox" value="${name}" checked>
+        <input type="checkbox" class="model-checkbox" value="${name}">
         ${name}
       </label>
     `)
@@ -107,6 +108,48 @@ function getSelectedMetrics() {
   return Array.from(document.querySelectorAll("#metric-checkboxes input:checked")).map((el) => el.value);
 }
 
+function getPageMode() {
+  return window.location.pathname.endsWith("compare.html") ? "compare" : "leaderboard";
+}
+
+function getUrlState() {
+  const params = new URLSearchParams(window.location.search);
+  return {
+    models: (params.get("models") || "").split(",").map((item) => item.trim()).filter(Boolean),
+    metrics: (params.get("metrics") || "").split(",").map((item) => item.trim()).filter(Boolean),
+  };
+}
+
+function applyStateFromUrl() {
+  const { models, metrics } = getUrlState();
+  const modelInputs = document.querySelectorAll(".model-checkbox");
+  modelInputs.forEach((input) => {
+    input.checked = models.length ? models.includes(input.value) : false;
+  });
+  const metricInputs = document.querySelectorAll("#metric-checkboxes input");
+  metricInputs.forEach((input) => {
+    input.checked = metrics.length ? metrics.includes(input.value) : false;
+  });
+}
+
+function syncStateToUrl() {
+  const selectedModels = getSelectedModels();
+  const selectedMetrics = getSelectedMetrics();
+  const params = new URLSearchParams();
+
+  if (selectedModels.length) params.set("models", selectedModels.join(","));
+  if (selectedMetrics.length) params.set("metrics", selectedMetrics.join(","));
+
+  const nextUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}`;
+  window.history.replaceState({}, "", nextUrl);
+}
+
+function getActiveFilter() {
+  return document.querySelector(".filter-pill.is-active")?.dataset.filter
+    || document.querySelector(".tab.is-active")?.dataset.filter
+    || "all";
+}
+
 function adjustColor(hex, amount) {
   const raw = hex.replace("#", "");
   const num = Number.parseInt(raw, 16);
@@ -116,11 +159,19 @@ function adjustColor(hex, amount) {
   return `rgb(${r}, ${g}, ${b})`;
 }
 
+function compactModelLabel(model) {
+  if (!model) return "";
+  const cleaned = model.replace(/[_/]+/g, " ").trim();
+  const parts = cleaned.split(/\s+/).filter(Boolean);
+  if (parts.length <= 2) return parts.join(" ");
+  return `${parts[0]} ${parts[1]} ${parts[2]}`.trim();
+}
+
 function drawBarChart(canvas, metric, rows, hoveredIndex = null) {
   const ctx = canvas.getContext("2d");
   const width = canvas.width;
   const height = canvas.height;
-  const pad = { top: 20, right: 18, bottom: 70, left: 70 };
+  const pad = { top: 20, right: 18, bottom: 96, left: 70 };
   const chartWidth = width - pad.left - pad.right;
   const chartHeight = height - pad.top - pad.bottom;
   const values = rows.map((row) => Number(row[metric] ?? 0));
@@ -132,7 +183,7 @@ function drawBarChart(canvas, metric, rows, hoveredIndex = null) {
   ctx.clearRect(0, 0, width, height);
   ctx.fillStyle = "#dfead8";
   ctx.fillRect(0, 0, width, height);
-  ctx.strokeStyle = "#0c4d2d";
+
   ctx.fillStyle = "#0c4d2d";
   ctx.lineWidth = 1;
   ctx.textAlign = "right";
@@ -140,6 +191,9 @@ function drawBarChart(canvas, metric, rows, hoveredIndex = null) {
   for (let i = 0; i <= steps; i += 1) {
     const tickValue = (maxValue / steps) * i;
     const y = pad.top + chartHeight - (chartHeight * i) / steps;
+    const progress = (y - pad.top) / chartHeight;
+    const alpha = 0.95 - progress * 0.8;
+    ctx.strokeStyle = `rgba(12, 77, 45, ${Math.max(alpha, 0.15)})`;
     ctx.beginPath();
     ctx.moveTo(pad.left, y);
     ctx.lineTo(width - pad.right, y);
@@ -147,12 +201,37 @@ function drawBarChart(canvas, metric, rows, hoveredIndex = null) {
     ctx.fillText(tickValue.toFixed(metric === "average_latency" ? 1 : 3), pad.left - 10, y + 4);
   }
 
+  for (let i = 0; i <= 12; i += 1) {
+    const y = pad.top + (chartHeight / 12) * i;
+    const alpha = 0.95 - (i / 12) * 0.75;
+    ctx.strokeStyle = `rgba(12, 77, 45, ${Math.max(alpha, 0.15)})`;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(pad.left + 4, y);
+    ctx.stroke();
+  }
+
+  const leftAxisGradient = ctx.createLinearGradient(0, pad.top, 0, pad.top + chartHeight);
+  leftAxisGradient.addColorStop(0, "rgba(12, 77, 45, 0.9)");
+  leftAxisGradient.addColorStop(0.5, "rgba(12, 77, 45, 0.55)");
+  leftAxisGradient.addColorStop(1, "rgba(12, 77, 45, 0.2)");
+  ctx.strokeStyle = leftAxisGradient;
   ctx.beginPath();
   ctx.moveTo(pad.left, pad.top);
   ctx.lineTo(pad.left, pad.top + chartHeight);
+  ctx.stroke();
+
+  const bottomAxisGradient = ctx.createLinearGradient(pad.left, 0, width - pad.right, 0);
+  bottomAxisGradient.addColorStop(0, "rgba(12, 77, 45, 0.9)");
+  bottomAxisGradient.addColorStop(0.5, "rgba(12, 77, 45, 0.55)");
+  bottomAxisGradient.addColorStop(1, "rgba(12, 77, 45, 0.2)");
+  ctx.strokeStyle = bottomAxisGradient;
+  ctx.beginPath();
+  ctx.moveTo(pad.left, pad.top + chartHeight);
   ctx.lineTo(width - pad.right, pad.top + chartHeight);
   ctx.stroke();
 
+  ctx.font = "11px sans-serif";
   ctx.textAlign = "center";
   rows.forEach((row, index) => {
     const value = Number(row[metric] ?? 0);
@@ -169,10 +248,35 @@ function drawBarChart(canvas, metric, rows, hoveredIndex = null) {
       ctx.strokeStyle = "#0c4d2d";
       ctx.lineWidth = 2;
       ctx.strokeRect(x - 1, y - 1, barWidth + 2, barHeight + 2);
+
+      const tooltipValue = value.toFixed(metric === "average_latency" ? 1 : 3);
+      const tooltipWidth = 92;
+      const tooltipHeight = 38;
+      const tooltipX = Math.min(Math.max(x + barWidth / 2 - tooltipWidth / 2, 18), width - tooltipWidth - 18);
+      const tooltipY = Math.max(y - tooltipHeight - 12, 18);
+
+      ctx.fillStyle = "rgba(11, 48, 31, 0.9)";
+      ctx.fillRect(tooltipX, tooltipY, tooltipWidth, tooltipHeight);
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+      ctx.strokeRect(tooltipX, tooltipY, tooltipWidth, tooltipHeight);
+      ctx.fillStyle = "#eaf7ef";
+      ctx.font = "bold 11px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(`${METRIC_LABELS[metric] || metric}`, tooltipX + tooltipWidth / 2, tooltipY + 15);
+      ctx.font = "11px sans-serif";
+      ctx.fillText(tooltipValue, tooltipX + tooltipWidth / 2, tooltipY + 30);
     }
 
     ctx.fillStyle = "#0c4d2d";
-    ctx.fillText(row.model, x + barWidth / 2, height - 24);
+    const label = compactModelLabel(row.model);
+    const shouldRotate = rows.length > 7;
+    ctx.save();
+    ctx.translate(x + barWidth / 2, height - 62);
+    ctx.rotate(shouldRotate ? -Math.PI / 20 : 0);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.fillText(label, 0, 0);
+    ctx.restore();
   });
 
   ctx.fillStyle = "#0c4d2d";
@@ -184,7 +288,7 @@ function drawBarChart(canvas, metric, rows, hoveredIndex = null) {
   ctx.rotate(-Math.PI / 2);
   ctx.fillText("Value", 0, 0);
   ctx.restore();
-  ctx.fillText("Model", width / 2, height - 8);
+  ctx.fillText("Model", width / 2, height - 12);
   canvas.__chartMeta = { rows, metric, groupGap, barWidth, pad, chartHeight };
 }
 
@@ -194,7 +298,7 @@ function renderMetricCharts() {
   const selectedMetrics = getSelectedMetrics();
 
   if (!selectedModels.length || !selectedMetrics.length) {
-    container.innerHTML = "<p>Select at least one model and one metric.</p>";
+    container.innerHTML = "<p class=\"chart-empty-state\">Select at least one model and one metric.</p>";
     return;
   }
 
@@ -238,18 +342,54 @@ function renderMetricCharts() {
 function attachEvents() {
   document.querySelectorAll(".tab").forEach((button) => {
     button.addEventListener("click", () => {
+      const targetUrl = button.dataset.url;
+      if (targetUrl) {
+        const url = new URL(targetUrl, window.location.origin);
+        const selectedModels = getSelectedModels();
+        const selectedMetrics = getSelectedMetrics();
+        if (selectedModels.length) url.searchParams.set("models", selectedModels.join(","));
+        if (selectedMetrics.length) url.searchParams.set("metrics", selectedMetrics.join(","));
+        window.location.href = url.toString();
+        return;
+      }
+
       document.querySelectorAll(".tab").forEach((tab) => tab.classList.remove("is-active"));
       button.classList.add("is-active");
-      if (button.dataset.filter === "graphs") {
-        document.getElementById("leaderboard-section").classList.add("hidden");
-        document.getElementById("graphs-section").classList.remove("hidden");
-      } else {
-        document.getElementById("graphs-section").classList.add("hidden");
-        document.getElementById("leaderboard-section").classList.remove("hidden");
-      }
+      const isGraphs = button.dataset.filter === "graphs";
+      document.getElementById("leaderboard-section").classList.toggle("hidden", isGraphs);
+      document.getElementById("graphs-section").classList.toggle("hidden", !isGraphs);
       renderTable();
     });
   });
+
+  const selector = document.querySelector(".params-selector");
+  const indicator = selector?.querySelector(".selector-indicator");
+  const updateSelectorIndicator = () => {
+    if (!selector || !indicator) return;
+    const buttons = [...selector.querySelectorAll(".filter-pill")];
+    const activeButton = selector.querySelector(".filter-pill.is-active") || buttons[0];
+    const activeIndex = buttons.indexOf(activeButton);
+    const gap = 4;
+    const buttonWidth = activeButton.offsetWidth;
+    const offset = activeIndex * (buttonWidth + gap);
+    indicator.style.width = `${buttonWidth}px`;
+    indicator.style.transform = `translateX(${offset}px)`;
+  };
+
+  document.querySelectorAll(".filter-pill").forEach((button) => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll(".filter-pill").forEach((pill) => pill.classList.remove("is-active"));
+      button.classList.add("is-active");
+      updateSelectorIndicator();
+      renderTable();
+    });
+  });
+
+  if (selector) {
+    selector.dataset.active = document.querySelector(".filter-pill.is-active")?.dataset.filter || "all";
+    updateSelectorIndicator();
+    window.addEventListener("resize", updateSelectorIndicator);
+  }
 
   document.querySelectorAll("#leaderboard-table th[data-key]").forEach((header) => {
     header.addEventListener("click", () => {
@@ -266,9 +406,20 @@ function attachEvents() {
 
   document.addEventListener("change", (event) => {
     if (event.target.matches(".model-checkbox") || event.target.matches("#metric-checkboxes input")) {
+      syncStateToUrl();
       renderMetricCharts();
     }
   });
+
+  if (getPageMode() === "compare") {
+    document.querySelectorAll(".tab").forEach((tab) => tab.classList.toggle("is-active", tab.dataset.filter === "graphs"));
+    document.getElementById("leaderboard-section")?.classList.add("hidden");
+    document.getElementById("graphs-section")?.classList.remove("hidden");
+  } else {
+    document.querySelectorAll(".tab").forEach((tab) => tab.classList.toggle("is-active", tab.dataset.filter === "leaderboard"));
+    document.getElementById("leaderboard-section")?.classList.remove("hidden");
+    document.getElementById("graphs-section")?.classList.add("hidden");
+  }
 }
 
 attachEvents();
