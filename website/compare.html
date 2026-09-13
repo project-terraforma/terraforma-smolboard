@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Chivo:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -14,13 +15,13 @@
       <header class="topbar">
         <div class="brand">Terraforma SMOLBoard</div>
         <nav class="tabs" aria-label="Leaderboard filters">
-          <button class="tab is-active" data-filter="leaderboard" data-url="index.html">Leaderboard</button>
-          <button class="tab" data-filter="graphs" data-url="compare.html">Graph Comparisons</button>
+          <button class="tab" data-filter="leaderboard" data-url="index.html">Leaderboard</button>
+          <button class="tab is-active" data-filter="graphs" data-url="compare.html">Graph Comparisons</button>
         </nav>
       </header>
 
       <main>
-        <section id="leaderboard-section" class="panel">
+        <section id="leaderboard-section" class="panel hidden">
           <h1 class="page-title">Geoconflation Leaderboards</h1>
           <div class="params-selector" aria-label="Parameter filters">
             <div class="selector-indicator"></div>
@@ -48,7 +49,7 @@
           </div>
         </section>
 
-        <section id="graphs-section" class="panel hidden">
+        <section id="graphs-section" class="panel">
           <h2 class="graph-header">Compare model metrics</h2>
           <div class="selectors">
             <div class="field">

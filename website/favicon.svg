@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Terraforma SMOLBoard icon">
+  <rect width="64" height="64" rx="12" fill="#dfead8"/>
+  <path d="M12 42V22h8l8 10 8-10h8v20h-8V30l-8 10-8-10v12z" fill="#0c4d2d"/>
+  <path d="M44 18h8v8h-8z" fill="#0c4d2d" opacity="0.9"/>
+</svg>
