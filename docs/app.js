@@ -252,6 +252,16 @@ function syncStateToUrl() {
   window.history.replaceState({}, "", nextUrl);
 }
 
+function resolveSiteUrl(targetUrl) {
+  const currentUrl = new URL(window.location.href);
+  const currentPath = currentUrl.pathname;
+  const basePath = currentPath.endsWith("/")
+    ? currentPath
+    : (currentPath.includes(".") ? currentPath.slice(0, currentPath.lastIndexOf("/") + 1) : `${currentPath}/`);
+  const base = new URL(basePath, currentUrl.origin);
+  return new URL(targetUrl, base).toString();
+}
+
 function getActiveFilter() {
   return document.querySelector(".filter-pill.is-active")?.dataset.filter
     || document.querySelector(".tab.is-active")?.dataset.filter
@@ -454,7 +464,7 @@ function attachEvents() {
     button.addEventListener("click", () => {
       const targetUrl = button.dataset.url;
       if (targetUrl) {
-        const url = new URL(targetUrl, window.location.origin);
+        const url = new URL(resolveSiteUrl(targetUrl));
         const selectedModels = getSelectedModels();
         const selectedMetrics = getSelectedMetrics();
         if (selectedModels.length) url.searchParams.set("models", selectedModels.join(","));
