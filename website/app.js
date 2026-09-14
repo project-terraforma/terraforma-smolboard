@@ -12,6 +12,91 @@ const TABLE_COLUMNS = [
 let leaderboard = [];
 let sortState = { key: "f1", direction: "desc" };
 
+const MODEL_SUBMISSIONS_FILE = "data/model_submissions.json";
+
+async function fetchSubmissions() {
+  try {
+    const response = await fetch("/api/model-submissions");
+    if (!response.ok) return [];
+    const data = await response.json();
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
+
+async function saveSavedModels(models) {
+  const response = await fetch("/api/model-submissions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(models),
+  });
+
+  if (!response.ok) {
+    throw new Error("Unable to save model to JSON file.");
+  }
+}
+
+function makeModelEntry(formData) {
+  const modelName = String(formData.get("modelName") || "").trim();
+  const huggingFaceUrl = String(formData.get("huggingFaceUrl") || "").trim();
+  const parameterCount = Number(formData.get("parameterCount") || 0);
+
+  if (!modelName || !huggingFaceUrl || !Number.isFinite(parameterCount) || parameterCount <= 0) {
+    throw new Error("Please complete all fields with valid values.");
+  }
+
+  return {
+    model: modelName,
+    hugging_face_url: huggingFaceUrl,
+    parameter_count: parameterCount,
+    parameter_bucket: parameterCount < 5000000000 ? "<5B" : parameterCount < 10000000000 ? "<10B" : "<20B",
+    benchmark_date: new Date().toISOString().slice(0, 10),
+    f1: 0,
+    average_latency: 0,
+    precision: 0,
+    accuracy: 0,
+    recall: 0,
+    tokens_per_second: 0,
+  };
+}
+
+function setupModelForm() {
+  const form = document.getElementById("model-form");
+  const statusEl = document.getElementById("form-status");
+  if (!form || !statusEl) return;
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const formData = new FormData(form);
+
+    try {
+      const entry = makeModelEntry(formData);
+      const existing = await fetchSubmissions();
+      const duplicate = existing.find((item) => item.model.toLowerCase() === entry.model.toLowerCase());
+      if (duplicate) {
+        throw new Error("A model with this name already exists.");
+      }
+
+      existing.push(entry);
+      await saveSavedModels(existing);
+      statusEl.textContent = "Saved to data/model_submissions.json.";
+      statusEl.className = "form-status success";
+      form.reset();
+
+      if (typeof leaderboard !== "undefined") {
+        leaderboard = [...leaderboard, entry];
+        renderTable();
+        populateModelCheckboxes();
+        renderMetricCharts();
+      }
+    } catch (error) {
+      statusEl.textContent = error.message || "Unable to save model.";
+      statusEl.className = "form-status error";
+    }
+  });
+}
+
 const METRIC_LABELS = {
   accuracy: "Accuracy",
   precision: "Precision",
@@ -30,11 +115,22 @@ const METRIC_COLORS = {
 
 async function loadData() {
   const response = await fetch("data/leaderboard.json");
-  leaderboard = await response.json();
-  renderTable();
-  populateModelCheckboxes();
-  applyStateFromUrl();
-  renderMetricCharts();
+  const fileRows = await response.json();
+  const savedModels = await fetchSubmissions();
+  leaderboard = [...fileRows, ...savedModels];
+
+  if (document.getElementById("leaderboard-body")) {
+    renderTable();
+  }
+
+  if (document.getElementById("model-checkboxes")) {
+    populateModelCheckboxes();
+    applyStateFromUrl();
+  }
+
+  if (document.getElementById("metric-charts")) {
+    renderMetricCharts();
+  }
 }
 
 function formatValue(key, value) {
@@ -73,6 +169,8 @@ function getFilteredRows() {
 function renderTable() {
   const rows = getFilteredRows();
   const tbody = document.getElementById("leaderboard-body");
+  if (!tbody) return;
+
   tbody.innerHTML = rows.map((row) => `
     <tr>
       <td>${row.model || "unknown"}</td>
@@ -89,6 +187,8 @@ function renderTable() {
 
 function populateModelCheckboxes() {
   const container = document.getElementById("model-checkboxes");
+  if (!container) return;
+
   const uniqueModels = [...new Set(leaderboard.map((row) => row.model).filter(Boolean))];
   container.innerHTML = uniqueModels
     .map((name) => `
@@ -109,7 +209,10 @@ function getSelectedMetrics() {
 }
 
 function getPageMode() {
-  return window.location.pathname.endsWith("compare.html") ? "compare" : "leaderboard";
+  const path = window.location.pathname.split("/").pop() || "index.html";
+  if (path.endsWith("compare.html")) return "compare";
+  if (path.endsWith("add-model.html")) return "add-model";
+  return "leaderboard";
 }
 
 function getUrlState() {
@@ -123,13 +226,18 @@ function getUrlState() {
 function applyStateFromUrl() {
   const { models, metrics } = getUrlState();
   const modelInputs = document.querySelectorAll(".model-checkbox");
-  modelInputs.forEach((input) => {
-    input.checked = models.length ? models.includes(input.value) : false;
-  });
+  if (modelInputs.length) {
+    modelInputs.forEach((input) => {
+      input.checked = models.length ? models.includes(input.value) : false;
+    });
+  }
+
   const metricInputs = document.querySelectorAll("#metric-checkboxes input");
-  metricInputs.forEach((input) => {
-    input.checked = metrics.length ? metrics.includes(input.value) : false;
-  });
+  if (metricInputs.length) {
+    metricInputs.forEach((input) => {
+      input.checked = metrics.length ? metrics.includes(input.value) : false;
+    });
+  }
 }
 
 function syncStateToUrl() {
@@ -294,6 +402,8 @@ function drawBarChart(canvas, metric, rows, hoveredIndex = null) {
 
 function renderMetricCharts() {
   const container = document.getElementById("metric-charts");
+  if (!container) return;
+
   const selectedModels = getSelectedModels();
   const selectedMetrics = getSelectedMetrics();
 
@@ -411,16 +521,25 @@ function attachEvents() {
     }
   });
 
-  if (getPageMode() === "compare") {
+  const pageMode = getPageMode();
+  if (pageMode === "compare") {
     document.querySelectorAll(".tab").forEach((tab) => tab.classList.toggle("is-active", tab.dataset.filter === "graphs"));
     document.getElementById("leaderboard-section")?.classList.add("hidden");
     document.getElementById("graphs-section")?.classList.remove("hidden");
+    document.getElementById("add-model-section")?.classList.add("hidden");
+  } else if (pageMode === "add-model") {
+    document.querySelectorAll(".tab").forEach((tab) => tab.classList.toggle("is-active", tab.dataset.filter === "add-model"));
+    document.getElementById("leaderboard-section")?.classList.add("hidden");
+    document.getElementById("graphs-section")?.classList.add("hidden");
+    document.getElementById("add-model-section")?.classList.remove("hidden");
   } else {
     document.querySelectorAll(".tab").forEach((tab) => tab.classList.toggle("is-active", tab.dataset.filter === "leaderboard"));
     document.getElementById("leaderboard-section")?.classList.remove("hidden");
     document.getElementById("graphs-section")?.classList.add("hidden");
+    document.getElementById("add-model-section")?.classList.add("hidden");
   }
 }
 
+setupModelForm();
 attachEvents();
 loadData();
