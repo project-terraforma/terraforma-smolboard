@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Add Model | Terraforma SMOLBoard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Chivo:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="topbar">
+        <div class="brand">Terraforma SMOLBoard</div>
+        <nav class="tabs" aria-label="Leaderboard filters">
+          <button class="tab" data-filter="leaderboard" data-url="index.html">Leaderboard</button>
+          <button class="tab" data-filter="graphs" data-url="compare.html">Graph Comparisons</button>
+          <button class="tab is-active" data-filter="add-model" data-url="add-model.html">Model Submission Form</button>
+        </nav>
+      </header>
+
+      <main>
+        <section id="add-model-section" class="panel">
+          <div class="model-form-card">
+            <h2 class="graph-header">Model Submission Form</h2>
+            <form id="model-form" class="model-form">
+              <div class="form-grid">
+                <div class="form-field">
+                  <label for="model-name">Model name</label>
+                  <input id="model-name" name="modelName" type="text" placeholder="e.g. Llama 3.1 8B" required />
+                </div>
+                <div class="form-field">
+                  <label for="huggingface-url">Hugging Face URL</label>
+                  <input id="huggingface-url" name="huggingFaceUrl" type="url" placeholder="https://huggingface.co/..." required />
+                </div>
+                <div class="form-field">
+                  <label for="parameter-count">Parameter number</label>
+                  <input id="parameter-count" name="parameterCount" type="number" min="1" step="1" placeholder="e.g. 8000000000" required />
+                </div>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="primary-button">Save model</button>
+              </div>
+              <p id="form-status" class="form-status" aria-live="polite"></p>
+            </form>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
