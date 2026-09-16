@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Terraforma SMOLBoard</title>
+    <title>Terraforma SMOLBoard | Home</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Chivo:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
@@ -12,92 +12,46 @@
   <body>
     <div class="page-shell">
       <header class="topbar">
-        <div class="brand">Terraforma SMOLBoard</div>
-        <nav class="tabs" aria-label="Leaderboard filters">
-          <button class="tab is-active" data-filter="leaderboard" data-url="index.html">Leaderboard</button>
-          <button class="tab" data-filter="graphs" data-url="compare.html">Graph Comparisons</button>
-          <button class="tab" data-filter="add-model" data-url="add-model.html">Model Submission Form</button>
+        <a class="brand" href="index.html">SMOLBoard</a>
+        <nav class="tabs" aria-label="Primary navigation">
+          <a class="tab" href="about.html">About</a>
+          <a class="tab" href="leaderboard.html">Leaderboards</a>
+          <a class="tab" href="methodology.html">Methodology</a>
+          <a class="tab" href="compare.html">Graphs</a>
+          <a class="tab" href="add-model.html">Model Submission</a>
+          <a class="tab" href="#paper">Paper</a>
         </nav>
       </header>
 
       <main>
-        <section id="leaderboard-section" class="panel">
-          <h1 class="page-title">Geoconflation Leaderboards</h1>
-          <div class="params-selector" aria-label="Parameter filters">
-            <div class="selector-indicator"></div>
-            <button class="filter-pill is-active" data-filter="all">All # params</button>
-            <button class="filter-pill" data-filter="<5B">&lt;5B params</button>
-            <button class="filter-pill" data-filter="<10B">&lt;10B params</button>
-            <button class="filter-pill" data-filter="<20B">&lt;20B params</button>
+        <section class="hero-section">
+          <div class="hero-copy">
+            <p class="eyebrow">Terraforma</p>
+            <h1 class="hero-title">Terraforma SMOLBoard</h1>
+            <p class="hero-lede">The world's first global leaderboard benchmarking LLMs on geoconflation</p>
+            <h2>What is geoconflation?</h2>
+            <p>Geoconflation is the process of combining multiple sources of geospatial data into one unified, accurate dataset for geographic information systems.</p>
+            <h2>Our Mission</h2>
+            <p>Terraforma SMOLBoard creates a unique benchmarking system measuring LLM performance based on how accurately they can determine whether two different sets of geodata are referring to the same place.</p>
           </div>
-          <div class="table-wrap">
-            <table id="leaderboard-table">
-              <thead>
-                <tr>
-                  <th data-key="model">Model <span class="sort-indicator">▾</span></th>
-                  <th data-key="f1">F1 <span class="sort-indicator">▾</span></th>
-                  <th data-key="average_latency">Average Latency <span class="sort-indicator">▾</span></th>
-                  <th data-key="precision">Precision <span class="sort-indicator">▾</span></th>
-                  <th data-key="accuracy">Accuracy <span class="sort-indicator">▾</span></th>
-                  <th data-key="recall">Recall <span class="sort-indicator">▾</span></th>
-                  <th data-key="tokens_per_second">Tokens/second <span class="sort-indicator">▾</span></th>
-                  <th data-key="benchmark_date">Benchmark Date <span class="sort-indicator">▾</span></th>
-                </tr>
-              </thead>
-              <tbody id="leaderboard-body"></tbody>
-            </table>
+          <div class="hero-chart" aria-label="Animated model metric radar chart">
+            <canvas id="home-radar"></canvas>
           </div>
         </section>
 
-        <section id="graphs-section" class="panel hidden">
-          <h2 class="graph-header">Compare model metrics</h2>
-          <div class="selectors">
-            <div class="field">
-              <label>Models</label>
-              <div id="model-checkboxes" class="checkbox-list"></div>
-            </div>
-            <div class="field">
-              <label>Metrics</label>
-              <div id="metric-checkboxes" class="checkbox-list">
-                <label><input type="checkbox" value="accuracy"> Accuracy</label>
-                <label><input type="checkbox" value="precision"> Precision</label>
-                <label><input type="checkbox" value="recall"> Recall</label>
-                <label><input type="checkbox" value="f1"> F1</label>
-                <label><input type="checkbox" value="average_latency"> Latency</label>
-              </div>
-            </div>
-          </div>
-          <div id="metric-charts" class="metric-charts"></div>
-        </section>
-
-        <section id="add-model-section" class="panel hidden">
-          <div class="model-form-card">
-            <h2 class="graph-header">Add model</h2>
-            <form id="model-form" class="model-form">
-              <div class="form-grid">
-                <div class="form-field">
-                  <label for="model-name">Model name</label>
-                  <input id="model-name" name="modelName" type="text" placeholder="e.g. Llama 3.1 8B" required />
-                </div>
-                <div class="form-field">
-                  <label for="huggingface-url">Hugging Face URL</label>
-                  <input id="huggingface-url" name="huggingFaceUrl" type="url" placeholder="https://huggingface.co/..." required />
-                </div>
-                <div class="form-field">
-                  <label for="parameter-count">Parameter number</label>
-                  <input id="parameter-count" name="parameterCount" type="number" min="1" step="1" placeholder="e.g. 8000000000" required />
-                </div>
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="primary-button">Save model</button>
-              </div>
-              <p id="form-status" class="form-status" aria-live="polite"></p>
-            </form>
+        <section class="leaders-section">
+          <div class="section-heading"><span></span><h2>LLM Leaders by Metric</h2><span></span></div>
+          <div class="leaders-layout">
+            <aside class="metric-index" aria-label="Metrics">
+              <a href="#f1">F1 Score</a><a href="#token-usage">Token Usage</a><a href="#accuracy">Accuracy</a><a href="#precision">Precision</a><a href="#recall">Recall</a><a href="#latency">Latency</a>
+            </aside>
+            <div id="home-metric-charts" class="home-metric-charts"></div>
           </div>
         </section>
       </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

@@ -3,11 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Add Model | Terraforma SMOLBoard</title>
+    <title>About | Terraforma SMOLBoard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Chivo:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
-    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -15,25 +14,22 @@
       <header class="topbar">
         <a class="brand" href="index.html">SMOLBoard</a>
         <nav class="tabs" aria-label="Primary navigation">
-          <a class="tab" href="about.html">About</a>
+          <a class="tab is-active" href="about.html">About</a>
           <a class="tab" href="leaderboard.html">Leaderboards</a>
           <a class="tab" href="methodology.html">Methodology</a>
           <a class="tab" href="compare.html">Graphs</a>
-          <a class="tab is-active" href="add-model.html">Model Submission</a>
+          <a class="tab" href="add-model.html">Model Submission</a>
           <a class="tab" href="#paper">Paper</a>
         </nav>
       </header>
-
-      <main>
-        <section id="add-model-section" class="panel">
-          <div class="model-form-card google-form-card">
-            <h2 class="graph-header">Model Submission Form</h2>
-            <iframe class="google-form" title="Model submission form" src="https://forms.gle/B18AH8zfhCRZYR2ZA" loading="lazy">Loading form...</iframe>
-          </div>
-        </section>
+      <main class="about-page">
+        <p class="eyebrow">Terraforma</p>
+        <h1 class="hero-title">About SMOLBoard</h1>
+        <h2>What is geoconflation?</h2>
+        <p>Geoconflation is the process of combining multiple sources of geospatial data into one unified, accurate dataset for geographic information systems.</p>
+        <h2>Our Mission</h2>
+        <p>Terraforma SMOLBoard creates a unique benchmarking system measuring LLM performance based on how accurately they can determine whether two different sets of geodata are referring to the same place or not.</p>
       </main>
     </div>
-
-    <script src="app.js"></script>
   </body>
 </html>

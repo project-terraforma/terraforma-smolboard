@@ -13,11 +13,14 @@
   <body>
     <div class="page-shell">
       <header class="topbar">
-        <div class="brand">Terraforma SMOLBoard</div>
-        <nav class="tabs" aria-label="Leaderboard filters">
-          <button class="tab" data-filter="leaderboard" data-url="index.html">Leaderboard</button>
-          <button class="tab is-active" data-filter="graphs" data-url="compare.html">Graph Comparisons</button>
-          <button class="tab" data-filter="add-model" data-url="add-model.html">Add Model</button>
+        <a class="brand" href="index.html">SMOLBoard</a>
+        <nav class="tabs" aria-label="Primary navigation">
+          <a class="tab" href="about.html">About</a>
+          <a class="tab" href="leaderboard.html">Leaderboards</a>
+          <a class="tab" href="methodology.html">Methodology</a>
+          <a class="tab is-active" href="compare.html">Graphs</a>
+          <a class="tab" href="add-model.html">Model Submission</a>
+          <a class="tab" href="#paper">Paper</a>
         </nav>
       </header>
 
@@ -51,24 +54,28 @@
         </section>
 
         <section id="graphs-section" class="panel">
-          <h2 class="graph-header">Compare model metrics</h2>
-          <div class="selectors">
-            <div class="field">
-              <label>Models</label>
-              <div id="model-checkboxes" class="checkbox-list"></div>
-            </div>
-            <div class="field">
-              <label>Metrics</label>
-              <div id="metric-checkboxes" class="checkbox-list">
-                <label><input type="checkbox" value="accuracy"> Accuracy</label>
-                <label><input type="checkbox" value="precision"> Precision</label>
-                <label><input type="checkbox" value="recall"> Recall</label>
-                <label><input type="checkbox" value="f1"> F1</label>
-                <label><input type="checkbox" value="average_latency"> Latency</label>
+          <h2 class="graph-header">Compare Model Metrics</h2>
+          <div class="compare-layout">
+            <div class="selectors">
+              <div class="field">
+                <label>Models</label>
+                <div id="model-checkboxes" class="checkbox-list"></div>
               </div>
             </div>
+            <div class="compare-results">
+              <div class="compare-toolbar">
+                <label class="metric-sort-label" for="metric-sort">Sort charts by</label>
+                <select id="metric-sort" class="metric-sort">
+                  <option value="f1">F1 Score</option>
+                  <option value="accuracy">Accuracy</option>
+                  <option value="precision">Precision</option>
+                  <option value="recall">Recall</option>
+                  <option value="average_latency">Latency</option>
+                </select>
+              </div>
+              <div id="metric-charts" class="metric-charts"></div>
+            </div>
           </div>
-          <div id="metric-charts" class="metric-charts"></div>
         </section>
 
         <section id="add-model-section" class="panel hidden">
@@ -99,6 +106,7 @@
       </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

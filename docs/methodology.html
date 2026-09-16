@@ -3,11 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Add Model | Terraforma SMOLBoard</title>
+    <title>Methodology | Terraforma SMOLBoard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Chivo:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
-    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -17,23 +16,20 @@
         <nav class="tabs" aria-label="Primary navigation">
           <a class="tab" href="about.html">About</a>
           <a class="tab" href="leaderboard.html">Leaderboards</a>
-          <a class="tab" href="methodology.html">Methodology</a>
+          <a class="tab is-active" href="methodology.html">Methodology</a>
           <a class="tab" href="compare.html">Graphs</a>
-          <a class="tab is-active" href="add-model.html">Model Submission</a>
+          <a class="tab" href="add-model.html">Model Submission</a>
           <a class="tab" href="#paper">Paper</a>
         </nav>
       </header>
-
-      <main>
-        <section id="add-model-section" class="panel">
-          <div class="model-form-card google-form-card">
-            <h2 class="graph-header">Model Submission Form</h2>
-            <iframe class="google-form" title="Model submission form" src="https://forms.gle/B18AH8zfhCRZYR2ZA" loading="lazy">Loading form...</iframe>
-          </div>
-        </section>
+      <main class="about-page">
+        <p class="eyebrow">Terraforma</p>
+        <h1 class="hero-title">Methodology</h1>
+        <h2>Geoconflation benchmark</h2>
+        <p>Models are evaluated on whether two geospatial records refer to the same place. Results are summarized with F1 score, accuracy, precision, recall, latency, and token usage.</p>
+        <h2>Metric handling</h2>
+        <p>Higher-is-better metrics are plotted directly. Latency is normalized inversely for radar visualization while the original seconds value remains available in tooltips.</p>
       </main>
     </div>
-
-    <script src="app.js"></script>
   </body>
 </html>
