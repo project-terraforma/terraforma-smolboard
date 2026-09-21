@@ -54,7 +54,7 @@ def fetch_metadata(state: AgentState) -> dict:
         quantization_used = None
         for quant in PREFERRED:
             for f in files:
-                if quant in f and f.endswith(".gguf"):
+                if quant.lower() in f.lower() and f.lower().endswith(".gguf"):
                     gguf_file = f
                     quantization_used = quant
                     break

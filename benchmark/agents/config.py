@@ -33,7 +33,7 @@ AGENT_CONFIG: dict[str, Any] = {
     },
     "agent": {
         "workspace_root": _env("BENCHMARK_WORKSPACE_ROOT"),
-        "data_dir": _env("BENCHMARK_DATA_DIR", "website/data"),
+        "data_dir": _env("BENCHMARK_DATA_DIR", "docs/data"),
         "commit_message": _env("BENCHMARK_COMMIT_MESSAGE", "Update benchmark leaderboard data"),
     },
 }

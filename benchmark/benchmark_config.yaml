@@ -3,7 +3,6 @@ benchmark:
   seed: 42
   evaluator_batch_size: 16
   checkpoint_flush_every: 1
-
 datasets:
   overture-3k:
     path: data/samples_3k_project_c_updated.parquet
@@ -27,7 +26,6 @@ datasets:
     metadata_columns:
       source_record_id: id
       base_record_id: base_id
-
   medium_pairs_geo:
     path: ../datasets/geo/medium_pairs.parquet
     label_column: label
@@ -50,31 +48,67 @@ datasets:
     metadata_columns:
       source_record_id: left_id
       base_record_id: right_id
-
+  micro_pairs:
+    path: ../datasets/geo/micro_pairs.parquet
+    label_column: label
+    positive_label: 1
+    example_id: generated_row_index
+    record_a_columns:
+      names: left_names
+      websites: left_websites
+      socials: left_socials
+      emails: left_emails
+      phones: left_phones
+      addresses: left_addresses
+    record_b_columns:
+      names: right_names
+      websites: right_websites
+      socials: right_socials
+      emails: right_emails
+      phones: right_phones
+      addresses: right_addresses
+    metadata_columns:
+      source_record_id: left_id
+      base_record_id: right_id
 prompts:
   baseline:
-    version: "1"
-    exposed_fields: [names, websites, socials, emails, phones, addresses]
-    template: |-
-      You are performing place entity resolution.
+    version: '1'
+    exposed_fields:
+    - names
+    - websites
+    - socials
+    - emails
+    - phones
+    - addresses
+    template: 'You are performing place entity resolution.
+
 
       Determine whether Place A and Place B refer to the same real-world place.
 
-      Consider differences in spelling, formatting, abbreviations, addresses, categories, and geographic information when available.
+
+      Consider differences in spelling, formatting, abbreviations, addresses, categories,
+      and geographic information when available.
+
 
       Respond with exactly one label:
 
+
       MATCH
+
       NO_MATCH
 
+
       Place A:
+
       {record_a}
 
+
       Place B:
+
       {record_b}
 
-      Answer:
 
+      Answer:'
 adapters:
   llama_cpp:
     backend: llama.cpp
@@ -88,7 +122,7 @@ adapters:
     batch_size: 2048
     micro_batch_size: 512
     flash_attention: auto
-    reasoning: "off"
+    reasoning: 'off'
     request_timeout_sec: 180
     startup_timeout_sec: 300
   qwen3_llama_cpp:
@@ -103,10 +137,9 @@ adapters:
     batch_size: 2048
     micro_batch_size: 512
     flash_attention: auto
-    reasoning: "off"
+    reasoning: 'off'
     request_timeout_sec: 180
     startup_timeout_sec: 300
-
 models:
   gemma-e2b:
     adapter: llama_cpp
@@ -117,6 +150,7 @@ models:
     filename: gemma-4-E2B_q4_0-it.gguf
     path: .models/gemma_E2B/gemma-4-E2B_q4_0-it.gguf
     expected_size_bytes: 3349516256
+    parameter_count: 2000000000
   gemma-e4b:
     adapter: llama_cpp
     display_name: Gemma 4 E4B-it
@@ -126,15 +160,7 @@ models:
     filename: gemma-4-E4B_q4_0-it.gguf
     path: .models/gemma_E4B/gemma-4-E4B_q4_0-it.gguf
     expected_size_bytes: 5154941280
-  gemma-12b:
-    adapter: llama_cpp
-    display_name: Gemma 4 12B-it
-    model_id: google/gemma-4-12B-it
-    quantized_repo: google/gemma-4-12B-it-qat-q4_0-gguf
-    revision: 29d097773436b69ff9feafd636ab4cf873786537
-    filename: gemma-4-12b-it-qat-q4_0.gguf
-    path: .models/gemma_12B/gemma-4-12b-it-qat-q4_0.gguf
-    expected_size_bytes: 6975879296
+    parameter_count: 4000000000
   qwen3-4b:
     adapter: qwen3_llama_cpp
     display_name: Qwen3 4B
@@ -144,11 +170,24 @@ models:
     filename: Qwen3-4B-Q4_K_M.gguf
     path: .models/qwen3_4b/Qwen3-4B-Q4_K_M.gguf
     expected_size_bytes: 2497280256
+    parameter_count: 4000000000
     quantization: Q4_K_M GGUF
-
+  gemma-4-12b-it:
+    adapter: llama_cpp
+    display_name: gemma-4-12B-it
+    model_id: google/gemma-4-12B-it
+    quantized_repo: google/gemma-4-12B-it-qat-q4_0-gguf
+    revision: 29d097773436b69ff9feafd636ab4cf873786537
+    filename: gemma-4-12b-it-qat-q4_0.gguf
+    path: .models/gemma_4_12b_it/gemma-4-12b-it-qat-q4_0.gguf
+    expected_size_bytes: 6975879296
+    quantization: Q4_0 GGUF
 generation:
   temperature: 0.0
   top_p: 1.0
   max_tokens: 8
   seed: 42
-  stop: ["\n"]
+  stop:
+  - '
+
+    '

@@ -549,7 +549,7 @@ function getUrlState() {
 function applyStateFromUrl() {
   const { models } = getUrlState();
   document.querySelectorAll(".model-checkbox").forEach((input) => {
-    input.checked = models.includes(input.value);
+    input.checked = models.length ? models.includes(input.value) : true;
   });
 }
 
