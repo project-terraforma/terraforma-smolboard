@@ -1,12 +1,4 @@
 #!/usr/bin/env python
-"""The notebook's analysis section, unchanged, over a checkpoint CSV.
-
-    python analysis.py                                   # results/kr3_v2_checkpoint.csv
-    python analysis.py --checkpoint results/kr3_v2_dryrun_checkpoint.csv
-    python analysis.py --checkpoint results/kr3_v1_colab_checkpoint.csv   # the Colab run (prompt v1)
-
-From a notebook:  from analysis import *; results_df = load_results("results/kr3_v2_checkpoint.csv")
-"""
 
 import argparse
 import os
