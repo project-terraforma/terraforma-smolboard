@@ -8,7 +8,6 @@ dspy==3.3.1
 pandas==2.2.3
 kernels==0.17.1; sys_platform == "darwin"
 
-# tokenizer / data / analysis support (do not affect generations)
 sentencepiece>=0.2
 protobuf>=4
 pyarrow>=15
