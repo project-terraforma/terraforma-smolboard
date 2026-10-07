@@ -1,23 +1,3 @@
-"""KR3 location-matching benchmark -- the experiment definition.
-
-Carried over verbatim from the Colab notebook (kr3_location_matching_prompt_eval.ipynb):
-model list, dataset construction, the DSPy signature and its local-model routing,
-generation settings, generate(), and the MATCH/NOT_MATCH parser. Nothing here knows which
-accelerator it is running on -- that lives in runtime.py. Treat this file as the
-benchmark: do not edit it casually.
-
-The json and text prompts are prompt version v2 (PROMPT_VERSION): they follow the canonical
-specification, "Terraforma SMOLBoard Running Notes" (LLM Prompts 1 and 2), instead of the
-notebook's v1 prompts. v1 is what the Colab run used, so v2 results are a new experiment.
-
-Other differences from the notebook: the dataset location (data/ instead of the Colab
-CWD), how it is fetched (one HTTPS download, no git) and its commit/sha256 pin;
-pinned model revisions; generate()'s OOM cache-release call (runtime.empty_cache()
-instead of torch.cuda), its pinned chat-template date, its non-finite-logits check and
-its token-cap flag; the DSPy call runs inside dspy.context (thread-safe, history off);
-and the messages of all three conditions are fingerprinted.
-"""
-
 import hashlib
 import json
 import os
