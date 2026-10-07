@@ -127,7 +127,6 @@ class CheckpointLock:
         self._f.flush()
 
     def release(self):
-        """Only for checks that take the lock briefly (preflight); a run holds it until it exits."""
         if fcntl is None:
             self._f.release()
         else:
@@ -214,7 +213,6 @@ class HubMirror:
               f"every {every_seconds}s, plus after every model and on interruption)")
 
     def sync_now(self, reason):
-        """Best-effort out-of-band push; the periodic sync retries on its own schedule."""
         try:
             self._scheduler.trigger().result(timeout=60)
         except Exception as e:
