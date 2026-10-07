@@ -39,15 +39,6 @@ def format_eta(seconds):
 
 
 def default_checkpoint_path(profile, dry_run, sample):
-    """kr3_<prompt version>_checkpoint.csv is the benchmark of record. The prompt version is
-    in the name because the Colab run (kr3_checkpoint.csv, prompt v1) is a different
-    experiment from the current prompts. Other runs that are a different experiment get
-    their own file and never mix into it:
-      * --sample N re-numbers example ids 0..4N-1, so its ids would collide with the
-        full run's -> kr3_v2_sample<N>_...
-      * --dry-run -> kr3_v2_dryrun_... (as in the notebook)
-      * --quantization none uses different weights than NF4 -> ....<dtype>.csv
-    """
     name = f"kr3_{benchmark.PROMPT_VERSION}"
     if sample is not None:
         name += f"_sample{sample}"
