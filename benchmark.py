@@ -97,8 +97,6 @@ def _download_dataset():
 
 
 def ensure_dataset():
-    """Download the golden dataset if it isn't on disk yet (idempotent -- safe on a resume),
-    then refuse to run against anything but the pinned file."""
     if not os.path.exists(GOLDEN_DATASET_FILE):
         _download_dataset()
     digest = _sha256(GOLDEN_DATASET_FILE)
@@ -116,15 +114,11 @@ def load_rows():
 
 
 def decode_lonlat(geom_bytes):
-    """Every geometry in this dataset is a 21-byte little-endian WKB Point
-    (byte-order + uint32 type + float64 lon + float64 lat) -- see
-    golden_dataset_formation/make_pairs_geo.py:build_geo() in the source repo."""
     _, _, lon, lat = struct.unpack("<BIdd", geom_bytes)
     return lon, lat
 
 
 def flat_record(row, side):
-    """The curated field set the `text` and `dspy` conditions use."""
     names = row.get(f"{side}_names") or {}
     addrs = row.get(f"{side}_addresses") or []
     addr = addrs[0] if addrs else {}
@@ -158,13 +152,6 @@ PDF_JSON_FIELDS = [
 
 
 def raw_record(row, side):
-    """The `json` condition's record: the spec's fields in the spec's order, each with the
-    dataset's real value (nested structs and lists as JSON, missing values as null). The
-    spec's own example prints nested values as "[object Object]", a JavaScript display
-    artifact, so real values are sent. Two fields are withheld:
-      * id -- MATCH pairs share their Overture id by construction (100% of MATCH pairs,
-        0% of NOT_MATCH pairs), so it is the label itself; the dataset's docs say to strip it.
-      * geometry -- coordinates are withheld by design (SHOW_COORDINATES)."""
     d = {}
     for field in PDF_JSON_FIELDS:
         if field == "id":
