@@ -1,31 +1,4 @@
 #!/usr/bin/env python3
-"""Make naive pair datasets from terraforma_samples_10M.parquet.
-
-A pair is two rows put side by side, plus a label:
-    label = 1  -> both rows describe the SAME place (they share an id)
-    label = 0  -> the two rows describe DIFFERENT places
-
-"Naive" means no cleaning and no checking. Same id => positive. Different id
-=> negative. That is the whole rule.
-
-Rules we agreed on:
-  - Half the pairs are positive, half are negative.
-  - Each place is used in exactly ONE pair, ever. No reuse.
-  - Places are drawn with equal chance, no matter how many rows they have.
-  - Which row lands on the left is a coin flip.
-  - The finished pairs are shuffled so labels are mixed, not in blocks.
-  - Each size is its own independent draw, so the sets may overlap.
-
-NOTE: left_id and right_id are in the output. label is just
-      (left_id == right_id), so these columns give the answer away.
-      Same for left_provider / right_provider: every positive pair is
-      cross-provider, but some negatives are not.
-      These are metadata. Strip them before showing a pair to a model.
-
-Run it:
-    ./venv/bin/python golden_dataset_formation/make_pairs.py --size micro
-"""
-
 import argparse
 import json
 import time
