@@ -395,9 +395,6 @@ _last_hit_token_cap = False
 
 
 def last_generation_hit_token_cap() -> bool:
-    """Whether the most recent generate() stopped because it reached MAX_NEW_TOKENS, rather
-    than at an end-of-turn token -- i.e. the reply was cut off by the 20-token cap. The run
-    loop reads it right after each row (every condition makes exactly one generate() call)."""
     return _last_hit_token_cap
 
 
