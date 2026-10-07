@@ -2,12 +2,10 @@ torch==2.14.1
 transformers==5.18.0
 tokenizers==0.23.2
 accelerate==1.15.0
-bitsandbytes==0.50.2      # NF4 kernels for CUDA, ROCm, Apple MPS, Intel XPU and CPU
+bitsandbytes==0.50.2
 huggingface_hub==1.33.0
-dspy==3.3.1               # the notebook's pin: the `dspy` condition's prompt is DSPy's ChatAdapter output
-pandas==2.2.3             # the notebook's pin
-# Apple Silicon: lets bitsandbytes fetch its prebuilt Metal NF4 kernels from the HF Hub
-# (kernels-community/bitsandbytes-mps) on macOS 26+. ~2x faster than its PyTorch fallback.
+dspy==3.3.1
+pandas==2.2.3
 kernels==0.17.1; sys_platform == "darwin"
 
 # tokenizer / data / analysis support (do not affect generations)
