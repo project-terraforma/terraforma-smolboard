@@ -195,8 +195,6 @@ def build_dataset(all_rows, full_run, n_per_pair_type, seed):
 
 
 def dry_run_slice(dataset, n_examples):
-    """The notebook's DRY_RUN example slice. Keeps each example's real id, so dry-run rows
-    are the same (model, prompt, example_id) cells a full run would produce."""
     rng = random.Random(SAMPLE_SEED)
     return rng.sample(dataset, min(n_examples, len(dataset)))
 
