@@ -114,9 +114,6 @@ def check_accelerator(rep, profile):
 
 
 def _nf4_relative_error(profile):
-    """Relative error of a small NF4 + double-quant layer (the load_model() config) against the
-    same matmul on its own dequantized weights, on the run's device and compute dtype, through
-    both the 1-row (decode) and the multi-row (prefill) kernels. NaN if any output is non-finite."""
     import bitsandbytes as bnb
     gen = torch.Generator().manual_seed(0)
     weight = torch.randn(512, 256, generator=gen) * 0.05
@@ -214,8 +211,6 @@ def _cached_weight_bytes():
 
 
 def check_models(rep, active_models):
-    """Access (or, offline, cache presence) of each model's pinned revision. Returns the models
-    still to download."""
     from huggingface_hub import auth_check, constants
     from huggingface_hub.errors import GatedRepoError, RepositoryNotFoundError
     offline = constants.HF_HUB_OFFLINE
@@ -282,10 +277,6 @@ def check_disk(rep, missing, delete_weights=False):
 
 
 def check_prompt_version(rep, checkpoint_path):
-    """A checkpoint holds one prompt version. The runtime log records the version of every
-    model load; loads logged before versions were recorded, and answered rows with no
-    log at all (the Colab checkpoint), are prompt v1. Adding rows to such a file would
-    mix two experiments, so it fails."""
     current = benchmark.PROMPT_VERSION
     versions = {r.get("prompt_version", "v1") for r in checkpoint.read_runtime_records(checkpoint_path)}
     try:
@@ -318,7 +309,6 @@ def check_checkpoint(rep, checkpoint_path):
 
 
 def run(profile, active_models, checkpoint_path, full, delete_weights=False):
-    """full=True: every check (--check). full=False: only the local ones, before a run."""
     from huggingface_hub import constants
     rep = Report()
     print("preflight:")
