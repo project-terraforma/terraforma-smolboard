@@ -1,13 +1,3 @@
-"""Portable inference runtime: which accelerator, which precision, how a model is
-loaded and released. The benchmark itself (benchmark.py) never touches a device API.
-
-Every backend defaults to the notebook's reference configuration -- bitsandbytes 4-bit
-NF4 with double quantization -- because bitsandbytes >= 0.49 ships NF4 kernels for
-CUDA, Apple MPS, Intel XPU and CPU. What does differ per backend is stated in
-RuntimeProfile.notes and recorded next to every checkpoint (see checkpoint.py), so a
-result never silently claims to be something it isn't.
-"""
-
 import gc
 import os
 import platform
