@@ -84,14 +84,6 @@ def _device_name(backend):
 
 
 def pick_compute_dtype():
-    """The 4-bit compute dtype the attached GPU can actually run.
-
-    bfloat16 needs compute capability >= 8.0 (Ampere and newer). A Colab T4 is
-    Turing / sm_75 and has no native bf16 support, so asking bitsandbytes for bf16
-    compute there is either rejected outright or falls back to a much slower
-    emulated path. float16 is the right choice on a T4; an A100/L4 runtime still
-    gets bfloat16.
-    """
     if torch.cuda.is_available() and torch.cuda.get_device_capability()[0] >= 8:
         return torch.bfloat16
     return torch.float16
