@@ -42,7 +42,6 @@ _PIN = re.compile(r"^([A-Za-z0-9_.\-]+)==([^\s;#]+)\s*(?:;([^#]*))?")
 
 
 def pinned_versions():
-    """{distribution: version} for every exact pin in requirements.txt that applies to this platform."""
     from packaging.markers import Marker
     pins = {}
     with open(os.path.join(benchmark.PROJECT_DIR, "requirements.txt"), encoding="utf-8") as f:
@@ -72,7 +71,6 @@ def check_versions(rep):
 
 
 def _unused_gpu():
-    """Describe a GPU that is present but that this torch build can't use, else None."""
     if sys.platform == "darwin":
         if platform.machine() == "arm64" and not torch.backends.mps.is_available():
             return (f"this Apple Silicon Mac's GPU (MPS) is unavailable to torch (built with MPS: "
@@ -196,7 +194,6 @@ def check_hf_auth(rep):
 
 
 def _cached_weight_bytes():
-    """{(repo_id, commit): bytes on disk} for every cached model revision that has weights."""
     from huggingface_hub import scan_cache_dir
     try:
         repos = scan_cache_dir().repos
