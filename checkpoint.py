@@ -96,6 +96,9 @@ def append_rows(path, rows):
 
 
 class CheckpointLock:
+
+    """Exclusive lock on <checkpoint>.lock for the life of the process. The OS releases it
+    when the process exits, however it exits, so a stale lock file is harmless."""
     def __init__(self, checkpoint_path):
         self.path = checkpoint_path + ".lock"
         self._f = None
