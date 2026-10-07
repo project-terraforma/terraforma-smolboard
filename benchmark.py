@@ -253,18 +253,6 @@ Answer with exactly: MATCH or NOT_MATCH"""
 
 
 class LocationEntityResolution(dspy.Signature):
-    """Decide whether two location records from real-world geospatial datasets describe the same
-    physical place. This is entity resolution / record linkage, not general classification.
-
-    Records may have missing, noisy, or inconsistently formatted fields.
-    - Formatting differences and abbreviations are not evidence of a mismatch.
-    - Small spelling differences are not evidence of a mismatch.
-    - Similar names alone are NOT a match if they represent different branches or
-      physical premises.
-    - Conflicting cities, addresses, building numbers, or coordinates are strong
-      evidence of NOT_MATCH.
-    - Missing information alone is not evidence of NOT_MATCH.
-    """
 
     location_a: str = dspy.InputField(
         desc="JSON record for the first location: name, address, city/region, "
@@ -284,9 +272,6 @@ DSPY_ADAPTER = dspy.ChatAdapter(use_json_adapter_fallback=False)
 
 
 class LocalHFEngine(dspy.BaseLM):
-    """Routes dspy.Predict's calls through the SAME already-loaded, already-quantized
-    model/tokenizer the json/text conditions use (via generate() below),
-    instead of DSPy opening its own separate model or network connection."""
 
     forward_contract = "typed_lm"
 
@@ -311,13 +296,6 @@ def _predict(lm, loc_a: dict, loc_b: dict):
 
 
 def dspy_condition_raw(hf_model, hf_tokenizer, short_name, loc_a: dict, loc_b: dict) -> str:
-    """Runs the DSPy condition through a real dspy.Predict call and returns the raw
-    text. A genuine generation failure (e.g. OOM inside generate()) is re-raised so
-    the caller records it as `generation_error`, same as json/text. A DSPy field-
-    parse failure on text that WAS successfully generated (e.g. a reply that's only
-    punctuation) is swallowed here and the raw text returned instead, so the caller's
-    parse_match() classifies it as `unparseable` -- identical treatment to the other
-    two conditions given the same kind of raw output."""
     engine = LocalHFEngine(hf_model, hf_tokenizer, f"local/{short_name}")
     try:
         _predict(engine, loc_a, loc_b)
@@ -349,8 +327,6 @@ class _CaptureLM(dspy.BaseLM):
 
 
 def prompt_fingerprints(dataset) -> dict:
-    """sha256 per condition of the exact messages sent for every example in `dataset`, in order
-    (compare with PROMPT_SHA256 for the full 1,000-pair dataset)."""
     digests = {name: hashlib.sha256() for name in CONDITION_NAMES}
     for example in dataset:
         row = example["_row"]
