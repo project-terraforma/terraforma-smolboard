@@ -1,15 +1,3 @@
-"""Environment checks, so a broken setup fails in seconds instead of hours into a run.
-
-`python run_benchmark.py --check` runs every check and exits. A real run first runs the local
-ones (everything except per-model access, cache and disk space). Each check prints one line:
-
-    ok    as expected
-    WARN  the run can go ahead, but something will fail or differ from the pinned benchmark
-    FAIL  results would be wrong or impossible; a real run refuses to start
-
-`--check` exits non-zero on any WARN or FAIL.
-"""
-
 import importlib.metadata
 import os
 import platform
