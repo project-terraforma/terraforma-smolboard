@@ -253,6 +253,18 @@ Answer with exactly: MATCH or NOT_MATCH"""
 
 
 class LocationEntityResolution(dspy.Signature):
+    """Decide whether two location records from real-world geospatial datasets describe the same
+    physical place. This is entity resolution / record linkage, not general classification.
+
+    Records may have missing, noisy, or inconsistently formatted fields.
+    - Formatting differences and abbreviations are not evidence of a mismatch.
+    - Small spelling differences are not evidence of a mismatch.
+    - Similar names alone are NOT a match if they represent different branches or
+      physical premises.
+    - Conflicting cities, addresses, building numbers, or coordinates are strong
+      evidence of NOT_MATCH.
+    - Missing information alone is not evidence of NOT_MATCH.
+    """
 
     location_a: str = dspy.InputField(
         desc="JSON record for the first location: name, address, city/region, "
@@ -272,6 +284,9 @@ DSPY_ADAPTER = dspy.ChatAdapter(use_json_adapter_fallback=False)
 
 
 class LocalHFEngine(dspy.BaseLM):
+    """Routes dspy.Predict's calls through the SAME already-loaded, already-quantized
+    model/tokenizer the json/text conditions use (via generate() below),
+    instead of DSPy opening its own separate model or network connection."""
 
     forward_contract = "typed_lm"
 
