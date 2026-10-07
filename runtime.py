@@ -196,17 +196,6 @@ def empty_cache():
 
 
 def free_model():
-    """Reclaim accelerator memory once the caller has dropped its own references.
-
-    Deleting a name inside this function would only unbind a local, so the caller
-    must clear its own `model`/`tokenizer` names FIRST and then call this -- see
-    run_benchmark in run_benchmark.py. Otherwise the finished model is still referenced
-    and stays resident while the next one loads.
-
-    Best-effort and never raises: it runs in `finally` blocks, where an error from a
-    faulted device (CUDA "device-side assert", MPS command-buffer error) would otherwise
-    replace the exception that actually stopped the run.
-    """
     gc.collect()
     empty_cache()
     for acc in _accelerators():
@@ -218,8 +207,6 @@ def free_model():
 
 
 def delete_cached_weights(repo_id):
-    """Remove one finished model's files from the local HF cache (--delete-weights).
-    Best-effort: a failure here is only printed -- it must never take down the run."""
     try:
         cache = scan_cache_dir()
         for cached in cache.repos:
