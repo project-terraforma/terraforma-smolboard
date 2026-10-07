@@ -1,15 +1,4 @@
 #!/usr/bin/env python
-"""Run (or resume) the KR3 location-matching benchmark locally.
-
-    python run_benchmark.py                      # full benchmark: 10 models x 1000 pairs x 3 conditions
-    python run_benchmark.py --dry-run            # smoke test: 3 examples per model, separate checkpoint
-    python run_benchmark.py --models qwen3-4b-instruct,smollm2-1.7b-instruct
-    python run_benchmark.py --check              # preflight only: install, backend, data, prompts, HF access, disk
-
-Stop it at any time (Ctrl-C, or SIGTERM from a job scheduler); re-run the same command to
-resume. One model is resident at a time. See README.md for the options.
-"""
-
 import argparse
 import os
 import platform
