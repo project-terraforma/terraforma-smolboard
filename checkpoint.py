@@ -20,22 +20,6 @@ RETRYABLE_STATUSES = {"model_load_error", "generation_error"}
 
 
 def _read_checkpoint_repairing_torn_tail(path, write_back=True):
-    """pd.read_csv(path), but survive a hard kill that landed mid-append.
-
-    A process killed while appending leaves a half-written final row. If the
-    tear fell inside a quoted raw_output, pandas can't even tokenize the file ("EOF
-    inside string") -- and any row appended afterwards would land INSIDE that open
-    quote and corrupt every later row. So: find the longest prefix of whole lines that
-    parses, write that prefix back atomically, and make sure the file ends in a
-    newline so the next append starts on its own line. The torn row is simply re-run.
-    write_back=False only parses (for readers such as analysis.py, which must never
-    rewrite a checkpoint a live run may be appending to).
-
-    Every append ends in a newline, so anything after the last newline is a torn record and
-    is dropped even when it happens to tokenize: a tear inside the status/correct field
-    would otherwise read as a valid-looking row (status "ok", correct "Tru") that is never
-    re-run and breaks the accuracy mean.
-    """
     with open(path, encoding="utf-8", newline="") as f:
         text = f.read()
     n_torn_lines = 0
@@ -103,8 +87,6 @@ def load_checkpoint(path):
 
 
 def append_rows(path, rows):
-    """Append finished rows as ONE write of whole lines (header only into a new file), then
-    fsync, so a laptop that dies mid-run keeps everything flushed before it."""
     new_file = not os.path.exists(path) or os.path.getsize(path) == 0
     text = pd.DataFrame(rows, columns=CHECKPOINT_COLUMNS).to_csv(header=new_file, index=False, lineterminator="\n")
     with open(path, "a", encoding="utf-8", newline="") as f:
@@ -114,9 +96,6 @@ def append_rows(path, rows):
 
 
 class CheckpointLock:
-    """Exclusive lock on <checkpoint>.lock for the life of the process. The OS releases it
-    when the process exits, however it exits, so a stale lock file is harmless."""
-
     def __init__(self, checkpoint_path):
         self.path = checkpoint_path + ".lock"
         self._f = None
@@ -156,8 +135,6 @@ class CheckpointLock:
 
 
 def load_results(path):
-    """The evaluation view of a checkpoint (what the notebook called results_df). Never
-    modifies the file, so it is safe to run while a benchmark is still appending."""
     if os.path.exists(path) and os.path.getsize(path) > 0:
         final_df, _ = _read_checkpoint_repairing_torn_tail(path, write_back=False)
         if list(final_df.columns) != CHECKPOINT_COLUMNS:
@@ -188,9 +165,6 @@ def read_runtime_records(checkpoint_path):
 
 
 class HubMirror:
-    """Mirror the checkpoint (and its runtime log) to a private HF Hub dataset repo:
-    restore it on start if it's missing locally, push it in the background every
-    `every_seconds`, and on demand after every model / on interruption."""
 
     REVISION = "checkpoint"
 
