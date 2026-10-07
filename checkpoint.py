@@ -1,23 +1,3 @@
-"""Results + checkpoint layer: the append-only CSV the benchmark resumes from.
-
-The CSV schema, torn-tail repair, retry semantics and "newest attempt wins" dedup are
-the notebook's, unchanged, so a checkpoint written in Colab resumes here and vice versa.
-
-Additions:
-  * append_rows -- each flush is one write of whole rows, so an interrupt can only ever
-    leave a torn *tail* (which the repair below handles), never a torn row mid-file.
-  * load_checkpoint also recovers from an empty file or a torn header (a kill during the
-    very first flush) and refuses a CSV that isn't a KR3 checkpoint.
-  * CheckpointLock -- one writer per checkpoint; a second concurrent run would write a
-    second header mid-file and make the checkpoint unresumable.
-  * <checkpoint>.runtime.jsonl -- one line per model load recording the backend,
-    precision, revisions and library versions that produced that model's rows. The CSV
-    itself is untouched, so the notebook's analysis reads it as before.
-  * HubMirror -- the notebook's optional Hugging Face Hub mirror of the checkpoint
-    (PERSIST_CHECKPOINT_TO_HUB), now opt-in via --hub-sync. Useful on ephemeral cloud
-    VMs; on a machine with a persistent disk the local CSV alone is enough.
-"""
-
 import io
 import json
 import os
