@@ -1,0 +1,61 @@
+{
+  "total_pairs": 50000,
+  "counts": {
+    "parent_child": 2,
+    "same_name_different_address": 49429,
+    "typo_differences": 343,
+    "incomplete_data": 12,
+    "unsolvable_conflicting": 4,
+    "languages": 15,
+    "other": 195,
+    "error": 0
+  },
+  "percentages": {
+    "parent_child": 0.0,
+    "same_name_different_address": 98.86,
+    "typo_differences": 0.69,
+    "incomplete_data": 0.02,
+    "unsolvable_conflicting": 0.01,
+    "languages": 0.03,
+    "other": 0.39,
+    "error": 0.0
+  },
+  "by_label": {
+    "0": {
+      "same_name_different_address": 24639,
+      "other": 195,
+      "typo_differences": 135,
+      "languages": 13,
+      "incomplete_data": 12,
+      "unsolvable_conflicting": 4,
+      "parent_child": 2
+    },
+    "1": {
+      "same_name_different_address": 24790,
+      "typo_differences": 208,
+      "languages": 2
+    }
+  },
+  "by_pair_type": {
+    "easy_negative": {
+      "same_name_different_address": 14699,
+      "other": 176,
+      "typo_differences": 110,
+      "languages": 13,
+      "unsolvable_conflicting": 2
+    },
+    "hard_negative": {
+      "same_name_different_address": 9940,
+      "typo_differences": 25,
+      "other": 19,
+      "incomplete_data": 12,
+      "parent_child": 2,
+      "unsolvable_conflicting": 2
+    },
+    "match": {
+      "same_name_different_address": 24790,
+      "typo_differences": 208,
+      "languages": 2
+    }
+  }
+}
