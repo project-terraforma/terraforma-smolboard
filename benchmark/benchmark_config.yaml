@@ -52,6 +52,30 @@ datasets:
       base_record_id: right_id
 
 prompts:
+  text:
+    version: "1"
+    record_format: text
+    exposed_fields: [names, websites, socials, emails, phones, addresses]
+    template: |-
+      You are performing place entity resolution.
+
+      Determine whether Place A and Place B refer to the same real-world place.
+
+      Consider differences in spelling, formatting, abbreviations, addresses, categories, and geographic information when available.
+
+      Respond with exactly one label:
+
+      MATCH
+      NO_MATCH
+
+      Place A:
+      {record_a}
+
+      Place B:
+      {record_b}
+
+      Answer:
+
   baseline:
     version: "1"
     exposed_fields: [names, websites, socials, emails, phones, addresses]

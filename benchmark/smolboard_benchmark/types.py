@@ -39,6 +39,7 @@ class PromptSpec:
     template: str
     exposed_fields: tuple[str, ...]
     sha256: str
+    record_format: str = "json"
 
 
 @dataclass(frozen=True)

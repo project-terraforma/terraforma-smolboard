@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pyarrow as pa
 import pyarrow.parquet as pq
+import pytest
 
 from smolboard_benchmark.adapters.base import ModelAdapter
 from smolboard_benchmark.datasets import ParquetConflationDataset
@@ -26,7 +27,8 @@ class FakeAdapter(ModelAdapter):
         return {"backend": "fake", "gpu_memory_peak_total_mib": None}
 
 
-def test_evaluator_persists_completed_ordered_run(tmp_path: Path):
+@pytest.mark.parametrize("record_format", ["json", "text"])
+def test_evaluator_persists_completed_ordered_run(tmp_path: Path, record_format: str):
     parquet_path = tmp_path / "pairs.parquet"
     pq.write_table(pa.table({
         "label": [1, 0], "names": ["A", "B"], "base_names": ["AA", "BB"], "id": ["a", "b"],
@@ -35,7 +37,7 @@ def test_evaluator_persists_completed_ordered_run(tmp_path: Path):
         "path": str(parquet_path), "label_column": "label", "positive_label": 1, "example_id": "generated_row_index",
         "record_a_columns": {"names": "names"}, "record_b_columns": {"names": "base_names"}, "metadata_columns": {"source_id": "id"},
     })
-    prompt = load_prompt("baseline", {"prompts": {"baseline": {"version": 1, "exposed_fields": ["names"], "template": "{record_a} {record_b}"}}})
+    prompt = load_prompt("baseline", {"prompts": {"baseline": {"version": 1, "record_format": record_format, "exposed_fields": ["names"], "template": "{record_a} {record_b}"}}})
     writer = FileResultWriter(tmp_path / "run", {"run_fingerprint": "same"})
     result = run_evaluation(
         dataset=dataset, prompt=prompt, model_name="fake", adapter=FakeAdapter(), writer=writer,

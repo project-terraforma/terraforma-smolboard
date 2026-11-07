@@ -17,7 +17,7 @@ from smolboard_benchmark.adapters import create_adapter
 from smolboard_benchmark.config import fingerprint, get_named, load_config, resolve_workspace_path
 from smolboard_benchmark.datasets import ParquetConflationDataset
 from smolboard_benchmark.evaluator import run_evaluation
-from smolboard_benchmark.prompts import load_prompt
+from smolboard_benchmark.prompts import build_prompt, load_prompt
 from smolboard_benchmark.results import FileResultWriter
 
 
@@ -25,7 +25,8 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("model", help="configured model name")
     parser.add_argument("--dataset", default="overture-3k", help="configured dataset name")
-    parser.add_argument("--prompt", default="baseline", help="configured prompt name")
+    parser.add_argument("--prompt", default="text", help="configured prompt name (default: text; baseline uses JSON)")
+    parser.add_argument("--preview", action="store_true", help="print one model input and exit without loading a model or writing results")
     parser.add_argument("--limit", type=int, metavar="N", help="deterministic balanced partial run")
     parser.add_argument("--batch-size", type=int, help="examples processed per adapter call")
     parser.add_argument("--run-id", help="new run ID, or an interrupted run ID to resume")
@@ -46,6 +47,9 @@ def main() -> None:
     adapter_config = get_named(config, "adapters", model_config["adapter"])
     dataset = ParquetConflationDataset(args.dataset, dataset_config)
     prompt = load_prompt(args.prompt, config)
+    if args.preview:
+        print(build_prompt(next(dataset.iter_examples(batch_size=1)), prompt))
+        return
     dataset_manifest = dataset.manifest()
     run_id = args.run_id or _default_run_id(args.model, args.dataset, args.prompt)
     _validate_run_id(run_id)
@@ -57,7 +61,7 @@ def main() -> None:
         "model_config": model_config,
         "dataset": args.dataset,
         "dataset_manifest": dataset_manifest,
-        "prompt": {"name": prompt.name, "version": prompt.version, "sha256": prompt.sha256},
+        "prompt": {"name": prompt.name, "version": prompt.version, "sha256": prompt.sha256, "record_format": prompt.record_format},
         "generation": config["generation"],
         "adapter": adapter_config,
         "limit": args.limit,
@@ -82,7 +86,7 @@ def main() -> None:
         "model_revision": model_config["revision"],
         "model_parameter_count": model_config.get("parameter_count"),
         "dataset": dataset_manifest,
-        "prompt": {"name": prompt.name, "version": prompt.version, "sha256": prompt.sha256},
+        "prompt": {"name": prompt.name, "version": prompt.version, "sha256": prompt.sha256, "record_format": prompt.record_format},
         "generation": config["generation"],
         "seed": config["benchmark"]["seed"],
         "run_fingerprint": run_fingerprint,
