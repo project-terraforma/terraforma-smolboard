@@ -1,0 +1,7 @@
+# Requirements for multi-model classification system
+
+torch>=2.0.0
+transformers>=4.56,<6
+accelerate>=0.26
+pandas>=1.5.0
+pyarrow>=10.0.0
