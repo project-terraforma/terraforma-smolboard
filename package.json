@@ -1,0 +1,8 @@
+{
+  "name": "terraforma-smolboard",
+  "private": true,
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  }
+}
