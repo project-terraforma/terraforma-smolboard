@@ -512,16 +512,6 @@ canvas {
 .home-metric h3 { margin: 0 0 0.25rem; color: var(--ink); font-size: 1.2rem; }
 .home-metric { height: clamp(16rem, 28vw, 18.75rem); padding: 0.35rem 0.55rem 0.55rem; background: transparent; }
 .home-metric canvas { width: 100%; height: calc(100% - 2.5rem) !important; background: transparent; }
-.metric-leaders { grid-column: 2; margin-top: 2.5rem; }
-.metric-leaders-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem; }
-.metric-leaders-heading h2 { margin: 0; color: var(--ink); font-size: 1.35rem; }
-.metric-leaders-heading p { margin: 0; color: var(--muted); font-size: 0.82rem; }
-.metric-leader-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; }
-.metric-leader-card { min-height: 10.5rem; padding: 1rem; border: 0.0625rem solid var(--line); background: rgba(255, 255, 255, 0.28); }
-.metric-leader-label { margin: 0 0 0.6rem; color: var(--ink); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
-.metric-leader-card h3 { margin: 0; font-size: 1.08rem; overflow-wrap: anywhere; }
-.metric-leader-card strong { display: block; margin-top: 0.35rem; color: var(--ink); font-size: 1.25rem; }
-.metric-leader-card > p:last-child { margin: 0.65rem 0 0; color: var(--muted); font-size: 0.78rem; line-height: 1.35; }
 
 .google-form-card { max-width: min(100%, 55rem); }
 .google-form { display: block; width: 100%; min-height: 47.5rem; border: 0.1875rem solid var(--ink); background: white; }
@@ -551,7 +541,4 @@ canvas {
   .leaderboard-layout .params-selector, .compare-layout .selectors { position: static; width: 100%; max-width: none; }
   .leaderboard-layout .params-selector { flex-direction: row; }
   .leaderboard-layout .filter-pill { flex: 1; }
-  .metric-leaders { grid-column: 1; }
-  .metric-leader-grid { grid-template-columns: 1fr; }
-  .metric-leaders-heading { align-items: flex-start; flex-direction: column; }
 }

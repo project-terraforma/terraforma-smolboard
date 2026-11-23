@@ -101,18 +101,9 @@ const METRIC_LABELS = {
   accuracy: "Accuracy",
   precision: "Precision",
   recall: "Recall",
-  f1: "F1 Score",
+  f1: "F1",
   average_latency: "Latency",
   tokens_per_second: "Token Usage",
-};
-
-const METRIC_DESCRIPTIONS = {
-  f1: "Best balance of precision and recall across place-match decisions.",
-  accuracy: "Correctly classified the largest share of place pairs.",
-  precision: "Made the fewest false-match predictions among its predicted matches.",
-  recall: "Found the largest share of true place matches.",
-  average_latency: "Returned benchmark responses fastest on average.",
-  tokens_per_second: "Generated the most output tokens per second.",
 };
 
 const METRIC_COLORS = {
@@ -199,41 +190,6 @@ function renderTable() {
       ${columns.map((key) => `<td>${key === "model" ? row.model || "unknown" : formatValue(key, row[key])}</td>`).join("")}
     </tr>
   `).join("");
-
-  renderMetricLeaders(rows);
-}
-
-function renderMetricLeaders(rows) {
-  const container = document.getElementById("metric-leaders");
-  if (!container) return;
-
-  const metrics = ["f1", "accuracy", "precision", "recall", "average_latency", "tokens_per_second"];
-  container.innerHTML = `
-    <div class="metric-leaders-heading">
-      <h2>Metric leaders</h2>
-      <p>Top model within the selected parameter range</p>
-    </div>
-    <div class="metric-leader-grid">
-      ${metrics.map((metric) => {
-        const eligible = rows.filter((row) => Number.isFinite(Number(row[metric])));
-        const winner = [...eligible].sort((a, b) =>
-          metric === "average_latency"
-            ? Number(a[metric]) - Number(b[metric])
-            : Number(b[metric]) - Number(a[metric])
-        )[0];
-        if (!winner) return "";
-        const value = formatValue(metric, winner[metric]);
-        return `
-          <article class="metric-leader-card">
-            <p class="metric-leader-label">${METRIC_LABELS[metric]}</p>
-            <h3>${winner.model || "Unknown model"}</h3>
-            <strong>${value}${metric === "average_latency" ? " sec" : metric === "tokens_per_second" ? " tok/s" : ""}</strong>
-            <p>${METRIC_DESCRIPTIONS[metric]}</p>
-          </article>
-        `;
-      }).join("")}
-    </div>
-  `;
 }
 
 function populateModelCheckboxes() {
@@ -372,17 +328,7 @@ function renderHome() {
   if (!radar || !chartContainer || typeof Chart === "undefined") return;
   const rows = [...leaderboard].sort((a, b) => Number(b.f1 || 0) - Number(a.f1 || 0));
   const metrics = ["f1", "tokens_per_second", "accuracy", "precision", "recall", "average_latency"];
-  chartContainer.innerHTML = metrics.map((metric) => `
-    <article class="home-metric" id="${metric === "tokens_per_second" ? "token-usage" : metric === "average_latency" ? "latency" : metric}">
-      <h3>${METRIC_LABELS[metric]}</h3>
-      <div class="metric-subtopics" aria-label="${METRIC_LABELS[metric]} subtopics">
-        ${METRIC_SUBTOPICS[metric].map(([name, description]) => `
-          <div><span>${name}</span><small>${description}</small></div>
-        `).join("")}
-      </div>
-      <canvas></canvas>
-    </article>
-  `).join("");
+  chartContainer.innerHTML = metrics.map((metric) => `<article class="home-metric" id="${metric === "tokens_per_second" ? "token-usage" : metric === "average_latency" ? "latency" : metric}"><h3>${METRIC_LABELS[metric]}</h3><canvas></canvas></article>`).join("");
   chartContainer.querySelectorAll("canvas").forEach((canvas, index) => createBarChart(canvas, metrics[index], rows.slice(0, 5)));
   startRadarAnimation(createRadarChart(radar, rows[0], undefined, 0, false), radarValues(rows[0] || {}));
 }
@@ -671,9 +617,7 @@ function createBarChart(canvas, metric, rows) {
   }] }, options: { responsive: true, maintainAspectRatio: false, animation: { duration: 650, easing: "easeOutQuart" },
     plugins: { legend: { display: false }, tooltip: { enabled: true } },
     scales: { x: { grid: { display: false }, ticks: { color: "#0d5138", font: chartFont(14), maxRotation: 0 } },
-      y: { beginAtZero: true, grid: { color: "rgba(13, 81, 56, 0.28)", borderDash: [3, 4] }, ticks: {
-        color: "#0d5138", font: chartFont(), maxTicksLimit: 5,
-      } } } } });
+      y: { beginAtZero: true, grid: { color: "rgba(13, 81, 56, 0.28)", borderDash: [3, 4] }, ticks: { color: "#0d5138", font: chartFont(), maxTicksLimit: 5 } } } } });
 }
 
 function createRadarChart(canvas, row, values = radarValues(row), paletteIndex = 0, interactive = true) {
