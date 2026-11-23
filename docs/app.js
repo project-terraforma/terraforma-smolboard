@@ -10,7 +10,7 @@ const TABLE_COLUMNS = [
 ];
 
 let leaderboard = [];
-let sortState = { key: "f1", direction: "desc" };
+let sortState = { key: "smolboard_score", direction: "desc" };
 
 const MODEL_SUBMISSIONS_FILE = "data/model_submissions.json";
 
@@ -98,6 +98,11 @@ function setupModelForm() {
 }
 
 const METRIC_LABELS = {
+  smolboard_score: "SMOLBoard Score",
+  acc_match: "Match Accuracy",
+  acc_easy_negative: "Easy Negative Accuracy",
+  acc_hard_negative: "Hard Negative Accuracy",
+  case_accuracy: "Case Accuracy",
   accuracy: "Accuracy",
   precision: "Precision",
   recall: "Recall",
@@ -107,6 +112,8 @@ const METRIC_LABELS = {
 };
 
 const METRIC_DESCRIPTIONS = {
+  smolboard_score: "Best overall score, weighting hard negatives most.",
+  acc_hard_negative: "Best at telling apart different places that look alike.",
   f1: "Best balance of precision and recall across place-match decisions.",
   accuracy: "Correctly classified the largest share of place pairs.",
   precision: "Made the fewest false-match predictions among its predicted matches.",
@@ -132,12 +139,15 @@ function rgbaFromHex(hex, alpha) {
 }
 
 async function loadData() {
-  const response = await fetch("data/leaderboard.json");
+  // Add ?data=<file> to the URL to preview another data file, e.g. ?data=leaderboard_FAKE.json
+  const dataFile = new URLSearchParams(window.location.search).get("data") || "leaderboard.json";
+  const response = await fetch(`data/${dataFile.replace(/[^\w.-]/g, "")}`);
   const fileRows = await response.json();
   const savedModels = await fetchSubmissions();
   leaderboard = [...fileRows, ...savedModels];
 
   if (document.getElementById("leaderboard-body")) {
+    populateCaseFilter();
     renderTable();
   }
 
@@ -155,8 +165,59 @@ async function loadData() {
   }
 }
 
+// Case tags from golden_dataset_formation/tag_cases.py. Cases with fewer pairs
+// than MIN_CASE_PAIRS are left out of the filter because their accuracy is too noisy.
+const CASE_LABELS = {
+  same_name_diff_address: "Same name, different address",
+  incomplete_data: "Incomplete data",
+  name_variant: "Name variants and typos",
+  non_latin_script: "Non-Latin names",
+  colocated_same_address: "Different places, same address",
+  conflicting_evidence: "Conflicting evidence",
+};
+const MIN_CASE_PAIRS = 20;
+
+// Some cases only contain one kind of pair, so a biased model can ace them.
+const CASE_NOTES = {
+  same_name_diff_address: "Every pair here is two different places, so a model that always says NO_MATCH scores 1.000. Read it next to the SMOLBoard Score.",
+  colocated_same_address: "Every pair here is two different places, so a model that always says NO_MATCH scores 1.000. Read it next to the SMOLBoard Score.",
+  name_variant: "Every pair here is the same place, so a model that always says MATCH scores 1.000. Read it next to the SMOLBoard Score.",
+  conflicting_evidence: "Every pair here is the same place, so a model that always says MATCH scores 1.000. Read it next to the SMOLBoard Score.",
+};
+
+function getActiveCase() {
+  return document.getElementById("case-filter")?.value || "";
+}
+
+function populateCaseFilter() {
+  const select = document.getElementById("case-filter");
+  if (!select) return;
+  const sizes = {};
+  leaderboard.forEach((row) => Object.entries(row.cases || {}).forEach(([key, value]) => {
+    sizes[key] = Math.max(sizes[key] || 0, value.n || 0);
+  }));
+  const shown = Object.keys(CASE_LABELS).filter((key) => (sizes[key] || 0) >= MIN_CASE_PAIRS);
+  const hidden = Object.keys(sizes).filter((key) => !shown.includes(key));
+  select.innerHTML = `<option value="">All pairs</option>` + shown
+    .map((key) => `<option value="${key}">${CASE_LABELS[key]} (${sizes[key]} pairs)</option>`).join("");
+  const note = document.getElementById("case-filter-note");
+  if (note) {
+    note.textContent = !shown.length ? "No case tags in this data yet."
+      : hidden.length ? `Hidden (under ${MIN_CASE_PAIRS} pairs): ${hidden.map((key) => CASE_LABELS[key] || key).join(", ")}` : "";
+  }
+  const hiddenNote = note ? note.textContent : "";
+  select.addEventListener("change", () => {
+    if (note) note.textContent = select.value ? (CASE_NOTES[select.value] || "") : hiddenNote;
+    if (select.value) sortState = { key: "case_accuracy", direction: "desc" };
+    else if (sortState.key === "case_accuracy") sortState = { key: "smolboard_score", direction: "desc" };
+    renderTable();
+  });
+}
+
 function formatValue(key, value) {
   if (value == null) return "—";
+  if (key === "smolboard_score") return Number(value).toFixed(1);
+  if (key.startsWith("acc_") || key === "case_accuracy") return Number(value).toFixed(3);
   if (key === "benchmark_date") return new Date(value).toISOString().slice(0, 10);
   if (["accuracy", "precision", "recall", "f1"].includes(key)) return Number(value).toFixed(3);
   if (key === "average_latency") return Number(value).toFixed(3);
@@ -171,6 +232,9 @@ function getFilteredRows() {
   if (activeTab && activeTab !== "all" && activeTab !== "graphs") {
     rows = rows.filter((row) => row.parameter_bucket === activeTab);
   }
+
+  const caseKey = getActiveCase();
+  rows = rows.map((row) => ({ ...row, case_accuracy: caseKey ? row.cases?.[caseKey]?.accuracy ?? null : null }));
 
   rows.sort((a, b) => {
     const dir = sortState.direction === "asc" ? 1 : -1;
@@ -192,7 +256,14 @@ function renderTable() {
   const rows = getFilteredRows();
   const tbody = document.getElementById("leaderboard-body");
   if (!tbody) return;
-  const columns = [...document.querySelectorAll("#leaderboard-table th[data-key]")].map((header) => header.dataset.key);
+  const caseKey = getActiveCase();
+  const caseHeader = document.querySelector('#leaderboard-table th[data-key="case_accuracy"]');
+  if (caseHeader) {
+    caseHeader.hidden = !caseKey;
+  }
+  const columns = [...document.querySelectorAll("#leaderboard-table th[data-key]")]
+    .filter((header) => !header.hidden)
+    .map((header) => header.dataset.key);
 
   tbody.innerHTML = rows.map((row) => `
     <tr>
@@ -207,7 +278,7 @@ function renderMetricLeaders(rows) {
   const container = document.getElementById("metric-leaders");
   if (!container) return;
 
-  const metrics = ["f1", "accuracy", "precision", "recall", "average_latency", "tokens_per_second"];
+  const metrics = ["smolboard_score", "acc_hard_negative", "f1", "accuracy", "precision", "recall", "average_latency", "tokens_per_second"];
   container.innerHTML = `
     <div class="metric-leaders-heading">
       <h2>Metric leaders</h2>
@@ -215,7 +286,7 @@ function renderMetricLeaders(rows) {
     </div>
     <div class="metric-leader-grid">
       ${metrics.map((metric) => {
-        const eligible = rows.filter((row) => Number.isFinite(Number(row[metric])));
+        const eligible = rows.filter((row) => row[metric] != null && Number.isFinite(Number(row[metric])));
         const winner = [...eligible].sort((a, b) =>
           metric === "average_latency"
             ? Number(a[metric]) - Number(b[metric])

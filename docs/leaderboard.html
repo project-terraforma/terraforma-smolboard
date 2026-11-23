@@ -34,9 +34,19 @@
               <button class="filter-pill" data-filter="<20B">&lt;20B params</button>
             </div>
             <div class="table-wrap">
+            <div class="case-filter">
+              <label for="case-filter">Show accuracy on</label>
+              <select id="case-filter"><option value="">All pairs</option></select>
+              <span id="case-filter-note" class="case-filter-note"></span>
+            </div>
             <table id="leaderboard-table">
               <thead><tr>
                 <th data-key="model">Model Name <span class="sort-indicator">▾</span></th>
+                <th data-key="smolboard_score" title="100 x (0.50 match + 0.15 easy negative + 0.35 hard negative accuracy). 50 = coin flip.">SMOLBoard Score <span class="sort-indicator">▾</span></th>
+                <th data-key="case_accuracy" title="Accuracy on the pairs in the case picked above" hidden>Case Acc. <span class="sort-indicator">▾</span></th>
+                <th data-key="acc_match" title="Accuracy on pairs that are the same place">Match Acc. <span class="sort-indicator">▾</span></th>
+                <th data-key="acc_easy_negative" title="Accuracy on obviously different places">Easy Neg. Acc. <span class="sort-indicator">▾</span></th>
+                <th data-key="acc_hard_negative" title="Accuracy on different places that look alike (nearby, or same name)">Hard Neg. Acc. <span class="sort-indicator">▾</span></th>
                 <th data-key="f1">F1 <span class="sort-indicator">▾</span></th>
                 <th data-key="accuracy">Accuracy <span class="sort-indicator">▾</span></th>
                 <th data-key="precision">Precision <span class="sort-indicator">▾</span></th>
@@ -47,6 +57,7 @@
               </tr></thead>
               <tbody id="leaderboard-body"></tbody>
             </table>
+            <p class="score-note">SMOLBoard Score = 100 × (0.50 × match accuracy + 0.15 × easy-negative accuracy + 0.35 × hard-negative accuracy). Matches and non-matches each count for half, so a model that always answers MATCH, always answers NO_MATCH, or guesses scores 50. Hard negatives weigh more than easy ones because that is where models differ.</p>
             </div>
           </div>
           <div id="metric-leaders" class="metric-leaders" aria-label="Metric winners"></div>
