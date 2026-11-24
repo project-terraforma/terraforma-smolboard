@@ -155,7 +155,15 @@ def main():
     args = ap.parse_args()
 
     with open(args.checkpoint, newline="", encoding="utf-8") as f:
-        rows = [r for r in csv.DictReader(f) if r["prompt"] == args.prompt]
+        all_rows = [r for r in csv.DictReader(f) if r["prompt"] == args.prompt]
+    # A model that was re-run (e.g. after a load error) appears more than once per
+    # pair. Keep only the latest answer for each (model, prompt, pair).
+    latest = {}
+    for r in all_rows:
+        latest[(r["model"], r["prompt"], r["example_id"])] = r
+    rows = list(latest.values())
+    if len(rows) < len(all_rows):
+        print(f"dropped {len(all_rows) - len(rows)} older duplicate rows (re-runs)")
     if not rows:
         raise SystemExit(f"no rows for prompt '{args.prompt}' in {args.checkpoint}")
 
