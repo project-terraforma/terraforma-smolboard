@@ -3,10 +3,10 @@
   "counts": {
     "same_name_diff_address": 100,
     "incomplete_data": 59,
-    "name_variant": 71,
+    "name_variant": 97,
     "non_latin_script": 56,
     "colocated_same_address": 35,
-    "conflicting_evidence": 1
+    "conflicting_evidence": 0
   },
   "thresholds": {
     "incomplete_max_fields": 3,

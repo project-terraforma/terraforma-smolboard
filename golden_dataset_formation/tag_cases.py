@@ -5,7 +5,7 @@ Usage: python tag_cases.py <pairs.parquet> <out_dir> [--review 30]
 Tags are multi-label and rule-based (no LLM). Thresholds are first guesses and
 need hand-checking against the review sample before anyone trusts them.
 """
-import argparse, csv, difflib, json, random, re, sys
+import argparse, csv, difflib, json, random, re, sys, unicodedata
 from pathlib import Path
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -29,11 +29,19 @@ def primary(names):
 
 
 def norm(s):
-    return re.sub(r"[^a-z0-9 ]", "", s.lower()).strip()
+    # NFKC turns full-width text like "１２−１" into "12-1". \w keeps letters from
+    # every script, so Japanese or Arabic names don't all collapse to "".
+    s = unicodedata.normalize("NFKC", s).lower()
+    return re.sub(r"\s+", " ", re.sub(r"[^\w ]|_", "", s)).strip()
 
 
 def sim(a, b):
-    return difflib.SequenceMatcher(None, norm(a), norm(b)).ratio()
+    na, nb = norm(a), norm(b)
+    if na and nb and na != nb and (na in nb or nb in na):
+        # One name inside the other ("Blue Beacon" vs "Blue Beacon Truck Wash")
+        # is a name variant, not conflicting evidence.
+        return 0.99
+    return difflib.SequenceMatcher(None, na, nb).ratio()
 
 
 def filled(row, side):
