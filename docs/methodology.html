@@ -4,15 +4,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Methodology | Terraforma SMOLBoard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Chivo:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div class="page-shell">
       <header class="topbar">
-        <a class="brand" href="index.html">SMOLBoard</a>
+        <a class="brand" href="./">SMOLBoard<span> / Terraforma</span></a>
         <nav class="tabs" aria-label="Primary navigation">
           <a class="tab" href="about.html">About</a>
           <a class="tab" href="leaderboard.html">Leaderboards</a>
@@ -28,7 +25,7 @@
         <h2>Geoconflation benchmark</h2>
         <p>Models are evaluated on whether two geospatial records refer to the same place. Results are summarized with F1 score, accuracy, precision, recall, latency, and token usage.</p>
         <h2>Metric handling</h2>
-        <p>Higher-is-better metrics are plotted directly. Latency is normalized inversely for radar visualization while the original seconds value remains available in tooltips.</p>
+        <p>Higher-is-better metrics are plotted directly. Latency is normalized inversely for radar visualization while the original seconds value remains available in tooltips. Axes without measurements for any model are omitted; missing measurements for individual models are left blank rather than shown as zero.</p>
       </main>
     </div>
   </body>

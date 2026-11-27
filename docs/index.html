@@ -4,23 +4,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Terraforma SMOLBoard | Home</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Chivo:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div class="page-shell">
       <header class="topbar">
-        <a class="brand" href="index.html">SMOLBoard</a>
-        <nav class="tabs" aria-label="Primary navigation">
-          <a class="tab" href="about.html">About</a>
-          <a class="tab" href="leaderboard.html">Leaderboards</a>
-          <a class="tab" href="methodology.html">Methodology</a>
-          <a class="tab" href="compare.html">Graphs</a>
-          <a class="tab" href="add-model.html">Model Submission</a>
-          <a class="tab" href="#paper">Paper</a>
-        </nav>
+        <a class="brand" href="./">SMOLBoard<span> / Terraforma</span></a>
       </header>
 
       <main>
@@ -34,16 +23,22 @@
             <h2>Our Mission</h2>
             <p>Terraforma SMOLBoard creates a unique benchmarking system measuring LLM performance based on how accurately they can determine whether two different sets of geodata are referring to the same place.</p>
           </div>
-          <div class="hero-chart" aria-label="Animated model metric radar chart">
-            <canvas id="home-radar"></canvas>
-          </div>
+          <nav class="hero-navigation" aria-label="Primary navigation">
+            <p class="navigation-label">Explore the benchmark</p>
+            <a href="about.html">About <span aria-hidden="true">↗</span></a>
+            <a href="leaderboard.html">Leaderboards <span aria-hidden="true">↗</span></a>
+            <a href="methodology.html">Methodology <span aria-hidden="true">↗</span></a>
+            <a href="compare.html">Graphs <span aria-hidden="true">↗</span></a>
+            <a href="add-model.html">Model Submission <span aria-hidden="true">↗</span></a>
+            <a href="#paper">Paper <span aria-hidden="true">↗</span></a>
+          </nav>
         </section>
 
         <section class="leaders-section">
-          <div class="section-heading"><span></span><h2>LLM Leaders by Metric</h2><span></span></div>
+          <div class="section-heading"><div><p class="eyebrow">Benchmark results</p><h2>Leaders by metric</h2></div><a href="leaderboard.html">View full leaderboard →</a></div>
           <div class="leaders-layout">
             <aside class="metric-index" aria-label="Metrics">
-              <a href="#f1">F1 Score</a><a href="#token-usage">Token Usage</a><a href="#accuracy">Accuracy</a><a href="#precision">Precision</a><a href="#recall">Recall</a><a href="#latency">Latency</a>
+              <a href="#f1">F1 Score</a><a href="#token-usage">Token Throughput</a><a href="#accuracy">Accuracy</a><a href="#precision">Precision</a><a href="#recall">Recall</a><a href="#latency">Latency</a>
             </aside>
             <div id="home-metric-charts" class="home-metric-charts"></div>
           </div>

@@ -4,15 +4,12 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Geoconflation Leaderboards | SMOLBoard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Chivo:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div class="page-shell">
       <header class="topbar">
-        <a class="brand" href="index.html">SMOLBoard</a>
+        <a class="brand" href="./">SMOLBoard<span> / Terraforma</span></a>
         <nav class="tabs" aria-label="Primary navigation">
           <a class="tab" href="about.html">About</a>
           <a class="tab is-active" href="leaderboard.html">Leaderboards</a>
@@ -25,13 +22,14 @@
       <main>
         <section id="leaderboard-section" class="panel">
           <h1 class="page-title">Geoconflation Leaderboards</h1>
+          <p class="page-intro">Compare model performance across the benchmark. Select a column heading to sort.</p>
           <div class="leaderboard-layout">
-            <div class="params-selector" aria-label="Parameter filters">
-              <div class="selector-indicator"></div>
+            <div class="params-selector" role="group" aria-label="Parameter filters">
+              <span class="filter-label">Parameters</span>
               <button class="filter-pill is-active" data-filter="all">All Models</button>
               <button class="filter-pill" data-filter="<5B">&lt;5B params</button>
-              <button class="filter-pill" data-filter="<10B">&lt;10B params</button>
-              <button class="filter-pill" data-filter="<20B">&lt;20B params</button>
+              <button class="filter-pill" data-filter="<10B">5B–&lt;10B</button>
+              <button class="filter-pill" data-filter="<20B">10B–&lt;20B</button>
             </div>
             <div class="table-wrap">
             <div class="case-filter">

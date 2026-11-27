@@ -108,7 +108,7 @@ const METRIC_LABELS = {
   recall: "Recall",
   f1: "F1",
   average_latency: "Latency",
-  tokens_per_second: "Token Usage",
+  tokens_per_second: "Token Throughput",
 };
 
 const METRIC_DESCRIPTIONS = {
@@ -130,8 +130,9 @@ const METRIC_COLORS = {
   average_latency: "#0d4f36",
 };
 
-const BAR_COLOR = "#0d5138";
-const RADAR_PALETTE = ["#8bdc86", "#4cae63", "#1f5138"];
+const BAR_COLOR = "#303b52";
+const RADAR_PALETTE = ["#344968", "#725a78", "#85634e", "#536574"];
+const SITE_BASE = new URL(".", document.currentScript.src);
 
 function rgbaFromHex(hex, alpha) {
   const value = Number.parseInt(hex.slice(1), 16);
@@ -141,7 +142,8 @@ function rgbaFromHex(hex, alpha) {
 async function loadData() {
   // Add ?data=<file> to the URL to preview another data file, e.g. ?data=leaderboard_FAKE.json
   const dataFile = new URLSearchParams(window.location.search).get("data") || "leaderboard.json";
-  const response = await fetch(`data/${dataFile.replace(/[^\w.-]/g, "")}`);
+  const response = await fetch(new URL(`data/${dataFile.replace(/[^\w.-]/g, "")}`, SITE_BASE));
+  if (!response.ok) throw new Error(`Unable to load benchmark data (${response.status}).`);
   const fileRows = await response.json();
   const savedModels = await fetchSubmissions();
   leaderboard = [...fileRows, ...savedModels];
@@ -160,7 +162,7 @@ async function loadData() {
     renderMetricCharts();
   }
 
-  if (document.getElementById("home-radar")) {
+  if (document.getElementById("home-metric-charts")) {
     renderHome();
   }
 }
@@ -241,8 +243,8 @@ function getFilteredRows() {
     const aVal = a[sortState.key];
     const bVal = b[sortState.key];
     if (aVal == null && bVal == null) return 0;
-    if (aVal == null) return 1 * dir;
-    if (bVal == null) return -1 * dir;
+    if (aVal == null) return 1;
+    if (bVal == null) return -1;
     if (typeof aVal === "string" && typeof bVal === "string") {
       return aVal.localeCompare(bVal) * dir;
     }
@@ -663,15 +665,17 @@ function getUrlState() {
 
 function applyStateFromUrl() {
   const { models } = getUrlState();
+  const hasSelection = new URLSearchParams(window.location.search).has("models");
   document.querySelectorAll(".model-checkbox").forEach((input) => {
-    input.checked = models.length ? models.includes(input.value) : true;
+    input.checked = hasSelection ? models.includes(input.value) : true;
   });
+  updateModelCount();
 }
 
 function syncStateToUrl() {
   const selectedModels = getSelectedModels();
-  const params = new URLSearchParams();
-  if (selectedModels.length) params.set("models", selectedModels.join(","));
+  const params = new URLSearchParams(window.location.search);
+  params.set("models", selectedModels.join(","));
   const nextUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}`;
   window.history.replaceState({}, "", nextUrl);
 }
@@ -687,14 +691,29 @@ function getActiveFilter() {
 function renderMetricCharts() {
   const container = document.getElementById("metric-charts");
   if (!container) return;
+  if (typeof Chart === "undefined") {
+    container.textContent = "Charts could not be loaded. Please check your connection and refresh.";
+    return;
+  }
+  container.querySelectorAll("canvas").forEach((canvas) => Chart.getChart(canvas)?.destroy());
   const selectedModels = getSelectedModels();
+  const unavailable = ["average_latency", "tokens_per_second"]
+    .filter((metric) => !leaderboard.some((row) => row[metric] != null && Number.isFinite(Number(row[metric]))));
+  const note = document.getElementById("unavailable-metrics");
+  if (note) note.textContent = unavailable.length
+    ? `Not shown: ${unavailable.map((metric) => METRIC_LABELS[metric]).join(" and ")}. No measurements are available in this dataset.`
+    : "";
   if (!selectedModels.length) {
     container.innerHTML = "<p class=\"chart-empty-state\">Select one or more models to compare.</p>";
     return;
   }
   const sortMetric = document.getElementById("metric-sort")?.value || "f1";
   const rows = leaderboard.filter((row) => selectedModels.includes(row.model))
-    .sort((a, b) => Number(b[sortMetric] || 0) - Number(a[sortMetric] || 0));
+    .sort((a, b) => {
+      if (a[sortMetric] == null) return b[sortMetric] == null ? 0 : 1;
+      if (b[sortMetric] == null) return -1;
+      return (Number(a[sortMetric]) - Number(b[sortMetric])) * (sortMetric === "average_latency" ? 1 : -1);
+    });
   container.innerHTML = rows.map((row) => `<div class="metric-chart"><h3>${row.model}</h3><canvas data-model="${row.model}"></canvas></div>`).join("");
   container.querySelectorAll("canvas[data-model]").forEach((canvas, index) => {
     const row = rows.find((item) => item.model === canvas.dataset.model);
@@ -705,11 +724,12 @@ function renderMetricCharts() {
 function radarValues(row) {
   const maxTokens = Math.max(...leaderboard.map((item) => Number(item.tokens_per_second) || 0), 1);
   const maxLatency = Math.max(...leaderboard.map((item) => Number(item.average_latency) || 0), 1);
-  return [Number(row?.f1) || 0, Number(row?.accuracy) || 0, Number(row?.precision) || 0, Number(row?.recall) || 0,
-    Math.max(0, 1 - (Number(row?.average_latency) || 0) / maxLatency), Math.min(1, (Number(row?.tokens_per_second) || 0) / maxTokens)];
+  return [row?.f1, row?.accuracy, row?.precision, row?.recall,
+    row?.average_latency == null ? null : Math.max(0, 1 - Number(row.average_latency) / maxLatency),
+    row?.tokens_per_second == null ? null : Math.min(1, Number(row.tokens_per_second) / maxTokens)];
 }
 
-function chartFont(size = 12) { return { family: "Chivo, sans-serif", size }; }
+function chartFont(size = 12) { return { family: "Segoe UI, sans-serif", size }; }
 
 function compactModelLabel(model) {
   if (!model) return "";
@@ -726,106 +746,74 @@ function formatRadarMetric(row, index) {
 
 function createBarChart(canvas, metric, rows) {
   if (typeof Chart === "undefined") return null;
-  return new Chart(canvas, { type: "bar", data: { labels: rows.map((row) => compactModelLabel(row.model)), datasets: [{
-    label: METRIC_LABELS[metric], data: rows.map((row) => Number(row[metric]) || 0), backgroundColor: BAR_COLOR, borderColor: BAR_COLOR,
-    borderWidth: 1, borderRadius: 3, barPercentage: 0.52, categoryPercentage: 0.72,
-  }] }, options: { responsive: true, maintainAspectRatio: false, animation: { duration: 650, easing: "easeOutQuart" },
+  return new Chart(canvas, { type: "bar", data: { labels: rows.map((row) => row.model), datasets: [{
+    label: METRIC_LABELS[metric], data: rows.map((row) => Number(row[metric])), backgroundColor: BAR_COLOR,
+    borderRadius: 2, barThickness: 13,
+  }] }, options: { indexAxis: "y", responsive: true, maintainAspectRatio: false, animation: { duration: 400 },
     plugins: { legend: { display: false }, tooltip: { enabled: true } },
-    scales: { x: { grid: { display: false }, ticks: { color: "#0d5138", font: chartFont(14), maxRotation: 0 } },
-      y: { beginAtZero: true, grid: { color: "rgba(13, 81, 56, 0.28)", borderDash: [3, 4] }, ticks: {
-        color: "#0d5138", font: chartFont(), maxTicksLimit: 5,
-      } } } } });
+    scales: { y: { grid: { display: false }, ticks: { color: "#30343c", font: chartFont(12), autoSkip: false } },
+      x: { beginAtZero: true, grid: { color: "#e9e9e7" }, ticks: { color: "#626772", font: chartFont(11), maxTicksLimit: 5 } } } } });
 }
 
 function createRadarChart(canvas, row, values = radarValues(row), paletteIndex = 0, interactive = true) {
   if (typeof Chart === "undefined") return null;
-  const color = interactive ? RADAR_PALETTE[paletteIndex % RADAR_PALETTE.length] : "#52af4b";
-  return new Chart(canvas, { type: "radar", data: { labels: ["F1 Score", "Accuracy", "Precision", "Recall", "Latency", "Token Usage"], datasets: [{
-    label: row?.model || "Model metrics", data: values, backgroundColor: interactive ? rgbaFromHex(color, 0.5) : "rgba(126, 224, 118, 0.7)",
-    borderColor: color, borderWidth: 2, pointBackgroundColor: color, pointBorderColor: color, pointRadius: interactive ? 5 : 0,
+  const color = RADAR_PALETTE[paletteIndex % RADAR_PALETTE.length];
+  const metrics = ["f1", "accuracy", "precision", "recall", "average_latency", "tokens_per_second"];
+  const labels = ["F1 Score", "Accuracy", "Precision", "Recall", "Latency", "Token Throughput"];
+  const availableIndices = metrics.map((metric, index) =>
+    leaderboard.some((item) => item[metric] != null && Number.isFinite(Number(item[metric]))) ? index : -1
+  ).filter((index) => index >= 0);
+  const availableValues = availableIndices.map((index) => values[index] == null ? null : Number(values[index]));
+  return new Chart(canvas, { type: "radar", data: { labels: availableIndices.map((index) => labels[index]), datasets: [{
+    label: row?.model || "Model metrics", data: availableValues, fill: availableValues.every((value) => value != null), backgroundColor: rgbaFromHex(color, 0.16),
+    borderColor: color, borderWidth: 2, pointBackgroundColor: color, pointBorderColor: color, pointRadius: interactive ? 4 : 0,
     pointHoverRadius: interactive ? 9 : 0, pointHitRadius: interactive ? 32 : 0,
   }] }, options: { responsive: true, maintainAspectRatio: false, animation: { duration: 700, easing: "easeInOutCubic" },
     events: interactive ? ["mousemove", "mouseout", "click", "touchstart", "touchmove"] : [], interaction: interactive ? { mode: "nearest", intersect: false } : { mode: "none" },
-    plugins: { legend: { display: false }, tooltip: { enabled: interactive, callbacks: { title: (items) => items[0]?.label || "Metric", label: (context) => ` ${formatRadarMetric(row, context.dataIndex)}` } } },
-    scales: { r: { min: 0, max: 1, beginAtZero: true, angleLines: { color: "rgba(13, 81, 56, 0.28)" }, grid: { color: "rgba(13, 81, 56, 0.34)", borderDash: [2, 3] }, pointLabels: { color: "#161616", font: chartFont() }, ticks: { display: false, stepSize: 0.2 } } } } });
+    plugins: { legend: { display: false }, tooltip: { enabled: interactive, callbacks: { title: (items) => items[0]?.label || "Metric", label: (context) => ` ${formatRadarMetric(row, availableIndices[context.dataIndex])}` } } },
+    scales: { r: { min: 0, max: 1, beginAtZero: true, angleLines: { color: "#d9dce1" }, grid: { color: "#d9dce1" }, pointLabels: { color: "#474c56", font: chartFont(11) }, ticks: { display: false, stepSize: 0.2 } } } } });
 }
 
 function renderHome() {
-  const radar = document.getElementById("home-radar");
   const chartContainer = document.getElementById("home-metric-charts");
-  if (!radar || !chartContainer || typeof Chart === "undefined") return;
-  const rows = [...leaderboard].sort((a, b) => Number(b.f1 || 0) - Number(a.f1 || 0));
-  const metrics = ["f1", "tokens_per_second", "accuracy", "precision", "recall", "average_latency"];
-  chartContainer.innerHTML = metrics.map((metric) => `<article class="home-metric" id="${metric === "tokens_per_second" ? "token-usage" : metric === "average_latency" ? "latency" : metric}"><h3>${METRIC_LABELS[metric]}</h3><canvas></canvas></article>`).join("");
-  chartContainer.querySelectorAll("canvas").forEach((canvas, index) => createBarChart(canvas, metrics[index], rows.slice(0, 5)));
-  const chart = createRadarChart(radar, rows[0], undefined, 0, false);
-  if (chart) {
-    let current = radarValues(rows[0] || {}); let target = [...current]; let last = performance.now();
-    const tick = (now) => { if (now - last >= 1600) { target = current.map(() => 0.24 + Math.random() * 0.76); last = now; } current = current.map((value, index) => value + (target[index] - value) * 0.018); chart.data.datasets[0].data = current; chart.update("none"); requestAnimationFrame(tick); };
-    requestAnimationFrame(tick);
+  if (!chartContainer) return;
+  if (typeof Chart === "undefined") {
+    chartContainer.textContent = "Charts could not be loaded. Please check your connection and refresh.";
+    return;
   }
+  const metrics = ["f1", "tokens_per_second", "accuracy", "precision", "recall", "average_latency"];
+  chartContainer.innerHTML = metrics.map((metric) => {
+    const rows = leaderboard.filter((row) => row[metric] != null && Number.isFinite(Number(row[metric])))
+      .sort((a, b) => (Number(a[metric]) - Number(b[metric])) * (metric === "average_latency" ? 1 : -1)).slice(0, 10);
+    const id = metric === "tokens_per_second" ? "token-usage" : metric === "average_latency" ? "latency" : metric;
+    return `<article class="home-metric" id="${id}"><div class="chart-heading"><h3>${METRIC_LABELS[metric]}</h3><span>${metric === "average_latency" ? "Lower is better" : "Higher is better"}</span></div>${rows.length ? `<div class="home-chart-wrap" style="height: ${Math.max(150, rows.length * 32 + 35)}px"><canvas data-metric="${metric}"></canvas></div>` : '<p class="chart-no-data">No measurements available yet.</p>'}</article>`;
+  }).join("");
+  chartContainer.querySelectorAll("canvas").forEach((canvas) => {
+    const metric = canvas.dataset.metric;
+    const rows = leaderboard.filter((row) => row[metric] != null && Number.isFinite(Number(row[metric])))
+      .sort((a, b) => (Number(a[metric]) - Number(b[metric])) * (metric === "average_latency" ? 1 : -1)).slice(0, 10);
+    createBarChart(canvas, metric, rows);
+  });
+}
+
+function updateModelCount() {
+  const count = document.getElementById("model-count");
+  if (count) count.textContent = `${getSelectedModels().length} of ${document.querySelectorAll(".model-checkbox").length} selected`;
 }
 
 function attachEvents() {
-  document.querySelectorAll(".tab").forEach((button) => {
-    button.addEventListener("click", () => {
-      const targetUrl = button.dataset.url;
-      if (targetUrl) {
-        const url = new URL(resolveSiteUrl(targetUrl));
-        const selectedModels = getSelectedModels();
-        const selectedMetrics = getSelectedMetrics();
-        if (selectedModels.length) url.searchParams.set("models", selectedModels.join(","));
-        if (selectedMetrics.length) url.searchParams.set("metrics", selectedMetrics.join(","));
-        window.location.href = url.toString();
-        return;
-      }
-
-      document.querySelectorAll(".tab").forEach((tab) => tab.classList.remove("is-active"));
-      button.classList.add("is-active");
-      const isGraphs = button.dataset.filter === "graphs";
-      document.getElementById("leaderboard-section").classList.toggle("hidden", isGraphs);
-      document.getElementById("graphs-section").classList.toggle("hidden", !isGraphs);
-      renderTable();
-    });
-  });
-
-  const selector = document.querySelector(".params-selector");
-  const indicator = selector?.querySelector(".selector-indicator");
-  const updateSelectorIndicator = () => {
-    if (!selector || !indicator) return;
-    const buttons = [...selector.querySelectorAll(".filter-pill")];
-    const activeButton = selector.querySelector(".filter-pill.is-active") || buttons[0];
-    const activeIndex = buttons.indexOf(activeButton);
-    const isVertical = getComputedStyle(selector).flexDirection === "column";
-    if (isVertical) {
-      const offset = buttons.slice(0, activeIndex).reduce((total, button) => total + button.offsetHeight, 0);
-      indicator.style.width = "calc(100% - 0.6rem)";
-      indicator.style.height = `${activeButton.offsetHeight}px`;
-      indicator.style.transform = `translateY(${offset}px)`;
-    } else {
-      const gap = 4;
-      const buttonWidth = activeButton.offsetWidth;
-      const offset = activeIndex * (buttonWidth + gap);
-      indicator.style.width = `${buttonWidth}px`;
-      indicator.style.height = "calc(100% - 0.6rem)";
-      indicator.style.transform = `translateX(${offset}px)`;
-    }
-  };
-
   document.querySelectorAll(".filter-pill").forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.classList.contains("is-active")));
     button.addEventListener("click", () => {
-      document.querySelectorAll(".filter-pill").forEach((pill) => pill.classList.remove("is-active"));
+      document.querySelectorAll(".filter-pill").forEach((pill) => {
+        pill.classList.remove("is-active");
+        pill.setAttribute("aria-pressed", "false");
+      });
       button.classList.add("is-active");
-      updateSelectorIndicator();
+      button.setAttribute("aria-pressed", "true");
       renderTable();
     });
   });
-
-  if (selector) {
-    selector.dataset.active = document.querySelector(".filter-pill.is-active")?.dataset.filter || "all";
-    updateSelectorIndicator();
-    window.addEventListener("resize", updateSelectorIndicator);
-  }
 
   document.querySelectorAll("#leaderboard-table th[data-key]").forEach((header) => {
     header.addEventListener("click", () => {
@@ -843,29 +831,41 @@ function attachEvents() {
   document.addEventListener("change", (event) => {
     if (event.target.matches(".model-checkbox") || event.target.matches("#metric-checkboxes input")) {
       syncStateToUrl();
+      updateModelCount();
       renderMetricCharts();
     }
   });
 
-  const pageMode = getPageMode();
-  if (pageMode === "compare") {
-    document.querySelectorAll(".tab").forEach((tab) => tab.classList.toggle("is-active", tab.dataset.filter === "graphs"));
-    document.getElementById("leaderboard-section")?.classList.add("hidden");
-    document.getElementById("graphs-section")?.classList.remove("hidden");
-    document.getElementById("add-model-section")?.classList.add("hidden");
-  } else if (pageMode === "add-model") {
-    document.querySelectorAll(".tab").forEach((tab) => tab.classList.toggle("is-active", tab.dataset.filter === "add-model"));
-    document.getElementById("leaderboard-section")?.classList.add("hidden");
-    document.getElementById("graphs-section")?.classList.add("hidden");
-    document.getElementById("add-model-section")?.classList.remove("hidden");
-  } else {
-    document.querySelectorAll(".tab").forEach((tab) => tab.classList.toggle("is-active", tab.dataset.filter === "leaderboard"));
-    document.getElementById("leaderboard-section")?.classList.remove("hidden");
-    document.getElementById("graphs-section")?.classList.add("hidden");
-    document.getElementById("add-model-section")?.classList.add("hidden");
-  }
+  document.getElementById("metric-sort")?.addEventListener("change", renderMetricCharts);
+  document.getElementById("model-search")?.addEventListener("input", (event) => {
+    const query = event.target.value.trim().toLowerCase();
+    document.querySelectorAll("#model-checkboxes label").forEach((label) => {
+      label.hidden = !label.textContent.toLowerCase().includes(query);
+    });
+  });
+  [["select-all-models", true], ["clear-models", false]].forEach(([id, checked]) => {
+    document.getElementById(id)?.addEventListener("click", () => {
+      document.querySelectorAll(".model-checkbox").forEach((input) => { input.checked = checked; });
+      syncStateToUrl();
+      updateModelCount();
+      renderMetricCharts();
+    });
+  });
 }
 
 setupModelForm();
 attachEvents();
-loadData();
+loadData().catch((error) => {
+  console.error(error);
+  const container = document.getElementById("home-metric-charts") || document.getElementById("metric-charts") || document.getElementById("leaderboard-body");
+  if (container) {
+    if (container.tagName === "TBODY") {
+      const row = container.insertRow();
+      const cell = row.insertCell();
+      cell.colSpan = document.querySelectorAll("#leaderboard-table th").length;
+      cell.textContent = "Benchmark data could not be loaded. Please refresh and try again.";
+    } else {
+      container.textContent = "Benchmark data could not be loaded. Please refresh and try again.";
+    }
+  }
+});

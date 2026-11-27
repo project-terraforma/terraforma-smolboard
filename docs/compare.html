@@ -4,16 +4,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Terraforma SMOLBoard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Chivo:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div class="page-shell">
       <header class="topbar">
-        <a class="brand" href="index.html">SMOLBoard</a>
+        <a class="brand" href="./">SMOLBoard<span> / Terraforma</span></a>
         <nav class="tabs" aria-label="Primary navigation">
           <a class="tab" href="about.html">About</a>
           <a class="tab" href="leaderboard.html">Leaderboards</a>
@@ -31,8 +28,8 @@
             <div class="selector-indicator"></div>
             <button class="filter-pill is-active" data-filter="all">All # params</button>
             <button class="filter-pill" data-filter="<5B">&lt;5B params</button>
-            <button class="filter-pill" data-filter="<10B">&lt;10B params</button>
-            <button class="filter-pill" data-filter="<20B">&lt;20B params</button>
+            <button class="filter-pill" data-filter="<10B">5B–&lt;10B</button>
+            <button class="filter-pill" data-filter="<20B">10B–&lt;20B</button>
           </div>
           <div class="table-wrap">
             <table id="leaderboard-table">
@@ -54,11 +51,16 @@
         </section>
 
         <section id="graphs-section" class="panel">
-          <h2 class="graph-header">Compare Model Metrics</h2>
+          <h1 class="graph-header">Compare model metrics</h1>
+          <p class="page-intro">Explore each model's benchmark profile. Hover over a point for the measured value. Missing measurements are omitted; latency and token throughput are normalized.</p>
+          <p id="unavailable-metrics" class="data-note" role="status"></p>
           <div class="compare-layout">
             <div class="selectors">
               <div class="field">
-                <label>Models</label>
+                <label for="model-search">Models</label>
+                <p class="picker-description" id="model-count"></p>
+                <input id="model-search" class="model-search" type="search" placeholder="Search models" />
+                <div class="picker-actions"><button type="button" id="select-all-models">Select all</button><button type="button" id="clear-models">Clear</button></div>
                 <div id="model-checkboxes" class="checkbox-list"></div>
               </div>
             </div>
