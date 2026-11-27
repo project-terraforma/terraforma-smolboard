@@ -1,115 +1,432 @@
 [
   {
-    "model": "OPENAI",
-    "model_name": "OPENAI",
-    "dataset": "legacy",
-    "prompt": "baseline",
-    "accuracy": 0.948,
-    "precision": 0.929,
-    "recall": 0.962,
-    "f1": 0.944,
-    "average_latency": 0.95,
-    "tokens_per_second": 1280.4,
-    "benchmark_date": "2026-09-08",
-    "parameter_bucket": "<20B"
+    "model": "falcon3-7b-instruct",
+    "model_name": "falcon3-7b-instruct",
+    "dataset": "micro_geo",
+    "prompt": "text",
+    "n_pairs": 1000,
+    "smolboard_score": 85.3,
+    "accuracy": 0.899,
+    "precision": 0.8829,
+    "recall": 0.92,
+    "f1": 0.9011,
+    "acc_match": 0.92,
+    "acc_easy_negative": 1.0,
+    "acc_hard_negative": 0.695,
+    "parse_failure_rate": 0.0,
+    "average_latency": null,
+    "tokens_per_second": null,
+    "benchmark_date": "2026-10-17",
+    "parameter_count": 7000000000,
+    "parameter_bucket": "<10B",
+    "cases": {
+      "same_name_diff_address": {
+        "accuracy": 0.9,
+        "n": 100
+      },
+      "incomplete_data": {
+        "accuracy": 0.8814,
+        "n": 59
+      },
+      "name_variant": {
+        "accuracy": 0.8969,
+        "n": 97
+      },
+      "non_latin_script": {
+        "accuracy": 0.9107,
+        "n": 56
+      },
+      "colocated_same_address": {
+        "accuracy": 0.2,
+        "n": 35
+      }
+    }
   },
   {
-    "model": "CLAUDE",
-    "model_name": "CLAUDE",
-    "dataset": "legacy",
-    "prompt": "baseline",
-    "accuracy": 0.918,
-    "precision": 0.903,
-    "recall": 0.936,
-    "f1": 0.91,
-    "average_latency": 1.14,
-    "tokens_per_second": 1190.6,
-    "benchmark_date": "2026-09-09",
-    "parameter_bucket": "<20B"
+    "model": "qwen3-4b-instruct",
+    "model_name": "qwen3-4b-instruct",
+    "dataset": "micro_geo",
+    "prompt": "text",
+    "n_pairs": 1000,
+    "smolboard_score": 83.2,
+    "accuracy": 0.885,
+    "precision": 0.8667,
+    "recall": 0.91,
+    "f1": 0.8878,
+    "acc_match": 0.91,
+    "acc_easy_negative": 1.0,
+    "acc_hard_negative": 0.65,
+    "parse_failure_rate": 0.0,
+    "average_latency": null,
+    "tokens_per_second": null,
+    "benchmark_date": "2026-10-17",
+    "parameter_count": 4000000000,
+    "parameter_bucket": "<5B",
+    "cases": {
+      "same_name_diff_address": {
+        "accuracy": 0.95,
+        "n": 100
+      },
+      "incomplete_data": {
+        "accuracy": 0.8475,
+        "n": 59
+      },
+      "name_variant": {
+        "accuracy": 0.9175,
+        "n": 97
+      },
+      "non_latin_script": {
+        "accuracy": 0.9643,
+        "n": 56
+      },
+      "colocated_same_address": {
+        "accuracy": 0.0857,
+        "n": 35
+      }
+    }
   },
   {
-    "model": "LLAMA-3.1-8B",
-    "model_name": "LLAMA-3.1-8B",
-    "dataset": "legacy",
-    "prompt": "baseline",
-    "accuracy": 0.891,
-    "precision": 0.884,
-    "recall": 0.905,
-    "f1": 0.886,
-    "average_latency": 1.304,
-    "tokens_per_second": 1114.8,
-    "benchmark_date": "2026-09-10",
-    "parameter_bucket": "<10B"
+    "model": "mistral-7b-instruct-v0.3",
+    "model_name": "mistral-7b-instruct-v0.3",
+    "dataset": "micro_geo",
+    "prompt": "text",
+    "n_pairs": 1000,
+    "smolboard_score": 81.9,
+    "accuracy": 0.889,
+    "precision": 0.8383,
+    "recall": 0.964,
+    "f1": 0.8967,
+    "acc_match": 0.964,
+    "acc_easy_negative": 1.0,
+    "acc_hard_negative": 0.535,
+    "parse_failure_rate": 0.0,
+    "average_latency": null,
+    "tokens_per_second": null,
+    "benchmark_date": "2026-10-17",
+    "parameter_count": 7000000000,
+    "parameter_bucket": "<10B",
+    "cases": {
+      "same_name_diff_address": {
+        "accuracy": 0.89,
+        "n": 100
+      },
+      "incomplete_data": {
+        "accuracy": 0.8814,
+        "n": 59
+      },
+      "name_variant": {
+        "accuracy": 0.9588,
+        "n": 97
+      },
+      "non_latin_script": {
+        "accuracy": 0.9821,
+        "n": 56
+      },
+      "colocated_same_address": {
+        "accuracy": 0.0,
+        "n": 35
+      }
+    }
   },
   {
-    "model": "MISTRAL-7B",
-    "model_name": "MISTRAL-7B",
-    "dataset": "legacy",
-    "prompt": "baseline",
-    "accuracy": 0.879,
-    "precision": 0.868,
-    "recall": 0.893,
-    "f1": 0.872,
-    "average_latency": 1.382,
-    "tokens_per_second": 1083.2,
-    "benchmark_date": "2026-09-10",
-    "parameter_bucket": "<10B"
+    "model": "olmo-2-7b-instruct",
+    "model_name": "olmo-2-7b-instruct",
+    "dataset": "micro_geo",
+    "prompt": "text",
+    "n_pairs": 1000,
+    "smolboard_score": 81.9,
+    "accuracy": 0.884,
+    "precision": 0.8441,
+    "recall": 0.942,
+    "f1": 0.8904,
+    "acc_match": 0.942,
+    "acc_easy_negative": 1.0,
+    "acc_hard_negative": 0.565,
+    "parse_failure_rate": 0.0,
+    "average_latency": null,
+    "tokens_per_second": null,
+    "benchmark_date": "2026-10-17",
+    "parameter_count": 7000000000,
+    "parameter_bucket": "<10B",
+    "cases": {
+      "same_name_diff_address": {
+        "accuracy": 0.9,
+        "n": 100
+      },
+      "incomplete_data": {
+        "accuracy": 0.9153,
+        "n": 59
+      },
+      "name_variant": {
+        "accuracy": 0.8763,
+        "n": 97
+      },
+      "non_latin_script": {
+        "accuracy": 0.8571,
+        "n": 56
+      },
+      "colocated_same_address": {
+        "accuracy": 0.0286,
+        "n": 35
+      }
+    }
   },
   {
-    "model": "QWEN-7B",
-    "model_name": "QWEN-7B",
-    "dataset": "legacy",
-    "prompt": "baseline",
-    "accuracy": 0.867,
-    "precision": 0.851,
-    "recall": 0.881,
-    "f1": 0.859,
-    "average_latency": 1.441,
-    "tokens_per_second": 1051.7,
-    "benchmark_date": "2026-09-11",
-    "parameter_bucket": "<10B"
+    "model": "gemma-3-4b-it",
+    "model_name": "gemma-3-4b-it",
+    "dataset": "micro_geo",
+    "prompt": "text",
+    "n_pairs": 1000,
+    "smolboard_score": 79.1,
+    "accuracy": 0.832,
+    "precision": 0.8756,
+    "recall": 0.774,
+    "f1": 0.8217,
+    "acc_match": 0.774,
+    "acc_easy_negative": 1.0,
+    "acc_hard_negative": 0.725,
+    "parse_failure_rate": 0.0,
+    "average_latency": null,
+    "tokens_per_second": null,
+    "benchmark_date": "2026-10-17",
+    "parameter_count": 4000000000,
+    "parameter_bucket": "<5B",
+    "cases": {
+      "same_name_diff_address": {
+        "accuracy": 0.98,
+        "n": 100
+      },
+      "incomplete_data": {
+        "accuracy": 0.7797,
+        "n": 59
+      },
+      "name_variant": {
+        "accuracy": 0.6907,
+        "n": 97
+      },
+      "non_latin_script": {
+        "accuracy": 0.7143,
+        "n": 56
+      },
+      "colocated_same_address": {
+        "accuracy": 0.0857,
+        "n": 35
+      }
+    }
   },
   {
-    "model": "DEEPSEEK-8B",
-    "model_name": "DEEPSEEK-8B",
-    "dataset": "legacy",
-    "prompt": "baseline",
-    "accuracy": 0.841,
-    "precision": 0.827,
-    "recall": 0.856,
-    "f1": 0.834,
-    "average_latency": 1.512,
-    "tokens_per_second": 994.5,
-    "benchmark_date": "2026-09-11",
-    "parameter_bucket": "<10B"
+    "model": "granite-3.1-2b-instruct",
+    "model_name": "granite-3.1-2b-instruct",
+    "dataset": "micro_geo",
+    "prompt": "text",
+    "n_pairs": 1000,
+    "smolboard_score": 76.6,
+    "accuracy": 0.772,
+    "precision": 0.9722,
+    "recall": 0.56,
+    "f1": 0.7107,
+    "acc_match": 0.56,
+    "acc_easy_negative": 1.0,
+    "acc_hard_negative": 0.96,
+    "parse_failure_rate": 0.0,
+    "average_latency": null,
+    "tokens_per_second": null,
+    "benchmark_date": "2026-10-17",
+    "parameter_count": 2000000000,
+    "parameter_bucket": "<5B",
+    "cases": {
+      "same_name_diff_address": {
+        "accuracy": 0.99,
+        "n": 100
+      },
+      "incomplete_data": {
+        "accuracy": 0.7119,
+        "n": 59
+      },
+      "name_variant": {
+        "accuracy": 0.299,
+        "n": 97
+      },
+      "non_latin_script": {
+        "accuracy": 0.5179,
+        "n": 56
+      },
+      "colocated_same_address": {
+        "accuracy": 0.8286,
+        "n": 35
+      }
+    }
   },
   {
-    "model": "PHI-3.5-4B",
-    "model_name": "PHI-3.5-4B",
-    "dataset": "legacy",
-    "prompt": "baseline",
-    "accuracy": 0.808,
-    "precision": 0.794,
-    "recall": 0.823,
-    "f1": 0.801,
-    "average_latency": 1.684,
-    "tokens_per_second": 943.1,
-    "benchmark_date": "2026-09-12",
-    "parameter_bucket": "<5B"
+    "model": "yi-1.5-6b-chat",
+    "model_name": "yi-1.5-6b-chat",
+    "dataset": "micro_geo",
+    "prompt": "text",
+    "n_pairs": 1000,
+    "smolboard_score": 76.5,
+    "accuracy": 0.848,
+    "precision": 0.8042,
+    "recall": 0.92,
+    "f1": 0.8582,
+    "acc_match": 0.92,
+    "acc_easy_negative": 0.9967,
+    "acc_hard_negative": 0.445,
+    "parse_failure_rate": 0.0,
+    "average_latency": null,
+    "tokens_per_second": null,
+    "benchmark_date": "2026-10-17",
+    "parameter_count": 6000000000,
+    "parameter_bucket": "<10B",
+    "cases": {
+      "same_name_diff_address": {
+        "accuracy": 0.66,
+        "n": 100
+      },
+      "incomplete_data": {
+        "accuracy": 0.8644,
+        "n": 59
+      },
+      "name_variant": {
+        "accuracy": 0.8969,
+        "n": 97
+      },
+      "non_latin_script": {
+        "accuracy": 0.875,
+        "n": 56
+      },
+      "colocated_same_address": {
+        "accuracy": 0.0,
+        "n": 35
+      }
+    }
   },
   {
-    "model": "gemma-4-12b-it",
-    "model_name": "gemma-4-12B-it",
-    "dataset": "micro_pairs",
-    "prompt": "baseline",
-    "accuracy": 1.0,
-    "precision": 1.0,
+    "model": "phi-3-mini-4k-instruct",
+    "model_name": "phi-3-mini-4k-instruct",
+    "dataset": "micro_geo",
+    "prompt": "text",
+    "n_pairs": 1000,
+    "smolboard_score": 73.7,
+    "accuracy": 0.848,
+    "precision": 0.7702,
+    "recall": 0.992,
+    "f1": 0.8671,
+    "acc_match": 0.992,
+    "acc_easy_negative": 1.0,
+    "acc_hard_negative": 0.26,
+    "parse_failure_rate": 0.0,
+    "average_latency": null,
+    "tokens_per_second": null,
+    "benchmark_date": "2026-10-17",
+    "parameter_count": 3800000000,
+    "parameter_bucket": "<5B",
+    "cases": {
+      "same_name_diff_address": {
+        "accuracy": 0.44,
+        "n": 100
+      },
+      "incomplete_data": {
+        "accuracy": 0.8983,
+        "n": 59
+      },
+      "name_variant": {
+        "accuracy": 1.0,
+        "n": 97
+      },
+      "non_latin_script": {
+        "accuracy": 0.9107,
+        "n": 56
+      },
+      "colocated_same_address": {
+        "accuracy": 0.0,
+        "n": 35
+      }
+    }
+  },
+  {
+    "model": "llama-3.2-3b-instruct",
+    "model_name": "llama-3.2-3b-instruct",
+    "dataset": "micro_geo",
+    "prompt": "text",
+    "n_pairs": 1000,
+    "smolboard_score": 56.8,
+    "accuracy": 0.576,
+    "precision": 0.8878,
+    "recall": 0.174,
+    "f1": 0.291,
+    "acc_match": 0.174,
+    "acc_easy_negative": 1.0,
+    "acc_hard_negative": 0.945,
+    "parse_failure_rate": 0.0,
+    "average_latency": null,
+    "tokens_per_second": null,
+    "benchmark_date": "2026-10-17",
+    "parameter_count": 3000000000,
+    "parameter_bucket": "<5B",
+    "cases": {
+      "same_name_diff_address": {
+        "accuracy": 1.0,
+        "n": 100
+      },
+      "incomplete_data": {
+        "accuracy": 0.4068,
+        "n": 59
+      },
+      "name_variant": {
+        "accuracy": 0.0206,
+        "n": 97
+      },
+      "non_latin_script": {
+        "accuracy": 0.4286,
+        "n": 56
+      },
+      "colocated_same_address": {
+        "accuracy": 0.6857,
+        "n": 35
+      }
+    }
+  },
+  {
+    "model": "smollm2-1.7b-instruct",
+    "model_name": "smollm2-1.7b-instruct",
+    "dataset": "micro_geo",
+    "prompt": "text",
+    "n_pairs": 1000,
+    "smolboard_score": 50.0,
+    "accuracy": 0.5,
+    "precision": 0.5,
     "recall": 1.0,
-    "f1": 1.0,
-    "average_latency": 1.0605533000081777,
-    "tokens_per_second": 1174.0206963958747,
-    "benchmark_date": "2026-09-21T17:44:54.728077+00:00",
-    "parameter_count": null,
-    "parameter_bucket": "all"
+    "f1": 0.6667,
+    "acc_match": 1.0,
+    "acc_easy_negative": 0.0,
+    "acc_hard_negative": 0.0,
+    "parse_failure_rate": 0.0,
+    "average_latency": null,
+    "tokens_per_second": null,
+    "benchmark_date": "2026-10-17",
+    "parameter_count": 1700000000,
+    "parameter_bucket": "<5B",
+    "cases": {
+      "same_name_diff_address": {
+        "accuracy": 0.0,
+        "n": 100
+      },
+      "incomplete_data": {
+        "accuracy": 0.6949,
+        "n": 59
+      },
+      "name_variant": {
+        "accuracy": 1.0,
+        "n": 97
+      },
+      "non_latin_script": {
+        "accuracy": 0.5714,
+        "n": 56
+      },
+      "colocated_same_address": {
+        "accuracy": 0.0,
+        "n": 35
+      }
+    }
   }
 ]

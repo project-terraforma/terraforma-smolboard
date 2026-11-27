@@ -1,1 +1,6 @@
 .DS_Store
+
+# local test data, never publish
+docs/data/*FAKE*
+fake_results.csv
+.venv/

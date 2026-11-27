@@ -555,3 +555,10 @@ canvas {
   .metric-leader-grid { grid-template-columns: 1fr; }
   .metric-leaders-heading { align-items: flex-start; flex-direction: column; }
 }
+
+/* Case filter and score note (leaderboard) */
+.case-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; color: var(--muted); font-size: 0.95rem; }
+.case-filter select { font: inherit; color: var(--ink); padding: 0.35rem 0.6rem; border: 1px solid var(--line); border-radius: 999px; background: transparent; }
+.case-filter-note { font-size: 0.8rem; }
+.score-note { margin-top: 0.75rem; color: var(--muted); font-size: 0.85rem; line-height: 1.4; }
+#leaderboard-table { min-width: 1150px; }
