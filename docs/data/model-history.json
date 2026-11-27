@@ -1,0 +1,8 @@
+[
+  {"model": "GEMMA-12B", "metric": "accuracy", "value": 0.971, "benchmark_date": "2026-09-07"},
+  {"model": "OPENAI", "metric": "accuracy", "value": 0.948, "benchmark_date": "2026-09-08"},
+  {"model": "CLAUDE", "metric": "accuracy", "value": 0.918, "benchmark_date": "2026-09-09"},
+  {"model": "GEMMA-12B", "metric": "f1", "value": 0.9713, "benchmark_date": "2026-09-07"},
+  {"model": "OPENAI", "metric": "f1", "value": 0.944, "benchmark_date": "2026-09-08"},
+  {"model": "CLAUDE", "metric": "f1", "value": 0.91, "benchmark_date": "2026-09-09"}
+]

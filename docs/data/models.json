@@ -1,0 +1,5 @@
+[
+  {"name": "GEMMA-12B", "parameter_count": 12000000000, "parameter_bucket": "<20B"},
+  {"name": "OPENAI", "parameter_count": 15000000000, "parameter_bucket": "<20B"},
+  {"name": "CLAUDE", "parameter_count": 18000000000, "parameter_bucket": "<20B"}
+]

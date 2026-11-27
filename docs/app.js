@@ -101,7 +101,7 @@ const METRIC_LABELS = {
   accuracy: "Accuracy",
   precision: "Precision",
   recall: "Recall",
-  f1: "F1 Score",
+  f1: "F1",
   average_latency: "Latency",
   tokens_per_second: "Token Usage",
 };
@@ -372,17 +372,7 @@ function renderHome() {
   if (!radar || !chartContainer || typeof Chart === "undefined") return;
   const rows = [...leaderboard].sort((a, b) => Number(b.f1 || 0) - Number(a.f1 || 0));
   const metrics = ["f1", "tokens_per_second", "accuracy", "precision", "recall", "average_latency"];
-  chartContainer.innerHTML = metrics.map((metric) => `
-    <article class="home-metric" id="${metric === "tokens_per_second" ? "token-usage" : metric === "average_latency" ? "latency" : metric}">
-      <h3>${METRIC_LABELS[metric]}</h3>
-      <div class="metric-subtopics" aria-label="${METRIC_LABELS[metric]} subtopics">
-        ${METRIC_SUBTOPICS[metric].map(([name, description]) => `
-          <div><span>${name}</span><small>${description}</small></div>
-        `).join("")}
-      </div>
-      <canvas></canvas>
-    </article>
-  `).join("");
+  chartContainer.innerHTML = metrics.map((metric) => `<article class="home-metric" id="${metric === "tokens_per_second" ? "token-usage" : metric === "average_latency" ? "latency" : metric}"><h3>${METRIC_LABELS[metric]}</h3><canvas></canvas></article>`).join("");
   chartContainer.querySelectorAll("canvas").forEach((canvas, index) => createBarChart(canvas, metrics[index], rows.slice(0, 5)));
   startRadarAnimation(createRadarChart(radar, rows[0], undefined, 0, false), radarValues(rows[0] || {}));
 }
